@@ -123,16 +123,21 @@ export function GroupFighterSelect({ onComplete }: GroupFighterSelectProps) {
                 </div>
 
                 <div 
-                  className="p-2.5 bg-zelda-purple/20 rounded-xl border-[2px] border-zelda-dark flex items-center justify-between cursor-pointer" 
+                  className="p-2.5 bg-zelda-purple/20 rounded-xl border-[2px] border-zelda-dark cursor-pointer" 
                   onClick={() => setNoKids(!noKids)}
                 >
-                  <div className="flex items-center gap-2 font-bold text-sm">
-                    <Baby className="w-4 h-4 text-zelda-dark" />
-                    Без детей
+                  <div className="flex items-center justify-between mb-1">
+                    <div className="flex items-center gap-2 font-bold text-sm">
+                      <Baby className="w-4 h-4 text-zelda-dark" />
+                      Без детей и стресса
+                    </div>
+                    <div className={`w-10 h-5 rounded-full border-[2px] border-zelda-dark p-0.5 transition-colors ${noKids ? 'bg-zelda-green' : 'bg-white'}`}>
+                      <div className={`w-3.5 h-3.5 rounded-full bg-zelda-dark transition-transform ${noKids ? 'translate-x-5' : 'translate-x-0'}`} />
+                    </div>
                   </div>
-                  <div className={`w-10 h-5 rounded-full border-[2px] border-zelda-dark p-0.5 transition-colors ${noKids ? 'bg-zelda-green' : 'bg-white'}`}>
-                    <div className={`w-3.5 h-3.5 rounded-full bg-zelda-dark transition-transform ${noKids ? 'translate-x-5' : 'translate-x-0'}`} />
-                  </div>
+                  <p className="text-xs text-gray-500 font-medium pl-6">
+                    Подберём места с аниматорами, детскими комнатами и активностями
+                  </p>
                 </div>
               </motion.div>
             )}
