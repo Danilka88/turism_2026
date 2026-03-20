@@ -29,10 +29,26 @@ const CITIES = [
   { id: 'timahevsk', name: 'Тимашёвск', icon: '🌻' },
 ];
 
+const FOOD_PREFERENCES = [
+  { id: 'kazakh', name: 'Казачья', icon: '🥟' },
+  { id: 'regional', name: 'Региональная', icon: '🍖' },
+  { id: 'sushi', name: 'Суши/Роллы', icon: '🍣' },
+  { id: 'pizza', name: 'Пицца', icon: '🍕' },
+  { id: 'burger', name: 'Бургеры', icon: '🍔' },
+  { id: 'bbq', name: 'Шашлыки', icon: '🍖' },
+  { id: 'seafood', name: 'Морепродукты', icon: '🦐' },
+  { id: 'caffe', name: 'Кофейни', icon: '☕' },
+  { id: 'wine', name: 'Винодельни', icon: '🍷' },
+  { id: 'fastfood', name: 'Фастфуд', icon: '🌯' },
+  { id: 'dessert', name: 'Десерты', icon: '🍰' },
+  { id: 'vegetarian', name: 'Вегетарианская', icon: '🥗' },
+];
+
 const STEPS = [
   { id: 1, name: 'Компания', icon: '👥' },
   { id: 2, name: 'Даты', icon: '📅' },
-  { id: 3, name: 'Старт', icon: '📍' },
+  { id: 3, name: 'Еда', icon: '🍽️' },
+  { id: 4, name: 'Старт', icon: '📍' },
 ];
 
 export function GroupFighterSelect({ onComplete }: GroupFighterSelectProps) {
@@ -41,10 +57,17 @@ export function GroupFighterSelect({ onComplete }: GroupFighterSelectProps) {
   const [noKids, setNoKids] = useState(false);
   const [startDate, setStartDate] = useState('');
   const [duration, setDuration] = useState<Duration | null>(null);
+  const [selectedFood, setSelectedFood] = useState<string[]>([]);
   const [selectedCities, setSelectedCities] = useState<string[]>([]);
 
   const toggleParticipant = (id: string) => {
     setSelectedParticipants(prev => 
+      prev.includes(id) ? prev.filter(s => s !== id) : [...prev, id]
+    );
+  };
+
+  const toggleFood = (id: string) => {
+    setSelectedFood(prev => 
       prev.includes(id) ? prev.filter(s => s !== id) : [...prev, id]
     );
   };
@@ -54,6 +77,8 @@ export function GroupFighterSelect({ onComplete }: GroupFighterSelectProps) {
       prev.includes(id) ? prev.filter(s => s !== id) : [...prev, id]
     );
   };
+
+  const TOTAL_STEPS = 4;
 
   return (
     <motion.div 
@@ -68,11 +93,11 @@ export function GroupFighterSelect({ onComplete }: GroupFighterSelectProps) {
           </h2>
         </div>
 
-        <div className="flex justify-center gap-2 mb-2">
+        <div className="flex justify-center gap-1 sm:gap-2 mb-2 overflow-x-auto hide-scrollbar pb-1">
           {STEPS.map((s) => (
             <div 
               key={s.id}
-              className={`flex items-center gap-2 px-3 py-1.5 rounded-full border-[2px] transition-all text-xs sm:text-sm ${
+              className={`flex items-center gap-1 px-2 sm:px-3 py-1 rounded-full border-[2px] transition-all text-[10px] sm:text-sm whitespace-nowrap ${
                 step === s.id 
                   ? 'bg-zelda-green text-white border-zelda-dark' 
                   : step > s.id 
@@ -86,7 +111,7 @@ export function GroupFighterSelect({ onComplete }: GroupFighterSelectProps) {
           ))}
         </div>
 
-        <div className="min-h-[320px] sm:min-h-[360px]">
+        <div className="min-h-[280px] sm:min-h-[320px]">
           <AnimatePresence mode="wait">
             {step === 1 && (
               <motion.div
@@ -98,7 +123,7 @@ export function GroupFighterSelect({ onComplete }: GroupFighterSelectProps) {
               >
                 <p className="font-bold text-gray-500 text-center text-sm">Кто едет с тобой?</p>
                 
-                <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 gap-2">
+                <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 gap-1 sm:gap-2">
                   {FIGHTERS.map((fighter) => {
                     const isSelected = selectedParticipants.includes(fighter.id);
                     return (
@@ -106,13 +131,13 @@ export function GroupFighterSelect({ onComplete }: GroupFighterSelectProps) {
                         key={fighter.id}
                         whileTap={{ scale: 0.95 }}
                         onClick={() => toggleParticipant(fighter.id)}
-                        className={`fighter-card p-2 flex flex-col items-center justify-center gap-1 h-16 sm:h-18 relative ${isSelected ? 'selected' : ''}`}
+                        className={`fighter-card p-1.5 sm:p-2 flex flex-col items-center justify-center gap-0.5 sm:gap-1 h-14 sm:h-16 relative ${isSelected ? 'selected' : ''}`}
                       >
-                        <span className="text-xl sm:text-2xl">{fighter.icon}</span>
-                        <span className="font-bold text-center text-[9px] sm:text-[10px] leading-tight">{fighter.name}</span>
+                        <span className="text-lg sm:text-2xl">{fighter.icon}</span>
+                        <span className="font-bold text-center text-[8px] sm:text-[10px] leading-tight">{fighter.name}</span>
                         {isSelected && (
                           <div className="absolute -top-1 -right-1 bg-zelda-green text-white rounded-full p-0.5 border border-zelda-dark">
-                            <Check className="w-2.5 h-2.5" strokeWidth={4} />
+                            <Check className="w-2 h-2 sm:w-2.5 sm:h-2.5" strokeWidth={4} />
                           </div>
                         )}
                       </motion.button>
@@ -121,20 +146,20 @@ export function GroupFighterSelect({ onComplete }: GroupFighterSelectProps) {
                 </div>
 
                 <div 
-                  className="p-2.5 bg-zelda-purple/20 rounded-xl border-[2px] border-zelda-dark cursor-pointer" 
+                  className="p-2 sm:p-2.5 bg-zelda-purple/20 rounded-xl border-[2px] border-zelda-dark cursor-pointer" 
                   onClick={() => setNoKids(!noKids)}
                 >
-                  <div className="flex items-center justify-between mb-1">
-                    <div className="flex items-center gap-2 font-bold text-sm">
-                      <Baby className="w-4 h-4 text-zelda-dark" />
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-1.5 sm:gap-2 font-bold text-xs sm:text-sm">
+                      <Baby className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-zelda-dark" />
                       Без детей и стресса
                     </div>
-                    <div className={`w-10 h-5 rounded-full border-[2px] border-zelda-dark p-0.5 transition-colors ${noKids ? 'bg-zelda-green' : 'bg-white'}`}>
-                      <div className={`w-3.5 h-3.5 rounded-full bg-zelda-dark transition-transform ${noKids ? 'translate-x-5' : 'translate-x-0'}`} />
+                    <div className={`w-8 sm:w-10 h-4 sm:h-5 rounded-full border-[2px] border-zelda-dark p-0.5 transition-colors ${noKids ? 'bg-zelda-green' : 'bg-white'}`}>
+                      <div className={`w-3 sm:w-3.5 h-3 sm:h-3.5 rounded-full bg-zelda-dark transition-transform ${noKids ? 'translate-x-4 sm:translate-x-5' : 'translate-x-0'}`} />
                     </div>
                   </div>
-                  <p className="text-xs text-gray-500 font-medium pl-6">
-                    Подберём места с аниматорами, детскими комнатами и активностями
+                  <p className="text-[10px] sm:text-xs text-gray-500 font-medium pl-5 sm:pl-6 mt-0.5">
+                    Места с аниматорами и детскими комнатами
                   </p>
                 </div>
               </motion.div>
@@ -159,31 +184,31 @@ export function GroupFighterSelect({ onComplete }: GroupFighterSelectProps) {
                         key={dur.id}
                         whileTap={{ scale: 0.98 }}
                         onClick={() => setDuration(duration === dur.id ? null : dur.id as Duration)}
-                        className={`p-3 rounded-xl border-[2px] font-black text-xs sm:text-sm flex flex-col items-center gap-1 transition-all ${
+                        className={`p-2 sm:p-3 rounded-xl border-[2px] font-black text-xs sm:text-sm flex flex-col items-center gap-1 transition-all ${
                           isSelected 
                             ? `${dur.color} text-white border-zelda-dark shadow-[3px_3px_0px_#3a1952]` 
                             : 'bg-white border-zelda-dark'
                         }`}
                       >
-                        <Icon className={`w-5 h-5 ${isSelected ? '' : 'text-zelda-dark'}`} />
+                        <Icon className={`w-4 sm:w-5 h-4 sm:h-5 ${isSelected ? '' : 'text-zelda-dark'}`} />
                         {dur.name}
                       </motion.button>
                     );
                   })}
                 </div>
 
-                <div className="flex flex-col gap-2 mt-1">
-                  <label className="font-bold flex items-center gap-2 text-sm">
-                    <Calendar className="w-4 h-4"/> Дата старта
+                <div className="flex flex-col gap-1.5 sm:gap-2">
+                  <label className="font-bold flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm">
+                    <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4"/> Дата старта
                   </label>
                   <input 
                     type="date" 
                     value={startDate}
                     onChange={(e) => setStartDate(e.target.value)}
-                    className="p-2.5 rounded-xl border-[2px] border-zelda-dark outline-none bg-white font-bold" 
+                    className="p-2 sm:p-2.5 rounded-xl border-[2px] border-zelda-dark outline-none bg-white font-bold text-xs sm:text-sm" 
                   />
                   {duration && (
-                    <p className="text-xs text-gray-500 font-medium">
+                    <p className="text-[10px] sm:text-xs text-gray-500 font-medium">
                       Завершение: {startDate || 'укажите дату'} + {duration === 'day' ? '1 день' : duration === 'weekend' ? '2 дня' : duration === '3days' ? '3 дня' : '7 дней'}
                     </p>
                   )}
@@ -197,11 +222,53 @@ export function GroupFighterSelect({ onComplete }: GroupFighterSelectProps) {
                 initial={{ opacity: 0, x: 50 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: 50 }}
-                className="flex flex-col gap-3"
+                className="flex flex-col gap-2 sm:gap-3"
+              >
+                <p className="font-bold text-gray-500 text-center text-sm">Что хочешь поесть?</p>
+                
+                <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-1.5 sm:gap-2 max-h-[250px] sm:max-h-[280px] overflow-y-auto pr-1">
+                  {FOOD_PREFERENCES.map((food) => {
+                    const isSelected = selectedFood.includes(food.id);
+                    return (
+                      <motion.button
+                        key={food.id}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => toggleFood(food.id)}
+                        className={`fighter-card p-1.5 sm:p-2 flex flex-col items-center justify-center gap-0.5 sm:gap-1 h-14 sm:h-16 relative ${
+                          isSelected ? 'selected' : ''
+                        }`}
+                      >
+                        <span className="text-lg sm:text-2xl">{food.icon}</span>
+                        <span className="font-bold text-center text-[8px] sm:text-[10px] leading-tight">{food.name}</span>
+                        {isSelected && (
+                          <div className="absolute -top-1 -right-1 bg-zelda-green text-white rounded-full p-0.5 border border-zelda-dark">
+                            <Check className="w-2 h-2 sm:w-2.5 sm:h-2.5" strokeWidth={4} />
+                          </div>
+                        )}
+                      </motion.button>
+                    );
+                  })}
+                </div>
+                
+                {selectedFood.length === 0 && (
+                  <p className="text-[10px] sm:text-xs text-gray-500 font-medium text-center">
+                    Выбери что-нибудь вкусненькое!
+                  </p>
+                )}
+              </motion.div>
+            )}
+
+            {step === 4 && (
+              <motion.div
+                key="step4"
+                initial={{ opacity: 0, x: 50 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 50 }}
+                className="flex flex-col gap-2 sm:gap-3"
               >
                 <p className="font-bold text-gray-500 text-center text-sm">Откуда стартуем?</p>
                 
-                <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
+                <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-1.5 sm:gap-2">
                   {CITIES.map((city) => {
                     const isSelected = selectedCities.includes(city.id);
                     return (
@@ -209,15 +276,15 @@ export function GroupFighterSelect({ onComplete }: GroupFighterSelectProps) {
                         key={city.id}
                         whileTap={{ scale: 0.95 }}
                         onClick={() => toggleCity(city.id)}
-                        className={`fighter-card p-2 flex flex-col items-center justify-center gap-1 h-16 sm:h-18 relative ${
+                        className={`fighter-card p-1.5 sm:p-2 flex flex-col items-center justify-center gap-0.5 sm:gap-1 h-14 sm:h-16 relative ${
                           isSelected ? 'selected' : ''
                         }`}
                       >
-                        <span className="text-xl sm:text-2xl">{city.icon}</span>
-                        <span className="font-bold text-center text-[9px] sm:text-[10px] leading-tight">{city.name}</span>
+                        <span className="text-lg sm:text-2xl">{city.icon}</span>
+                        <span className="font-bold text-center text-[8px] sm:text-[10px] leading-tight">{city.name}</span>
                         {isSelected && (
                           <div className="absolute -top-1 -right-1 bg-zelda-green text-white rounded-full p-0.5 border border-zelda-dark">
-                            <Check className="w-2.5 h-2.5" strokeWidth={4} />
+                            <Check className="w-2 h-2 sm:w-2.5 sm:h-2.5" strokeWidth={4} />
                           </div>
                         )}
                       </motion.button>
@@ -226,7 +293,7 @@ export function GroupFighterSelect({ onComplete }: GroupFighterSelectProps) {
                 </div>
                 
                 {selectedCities.length === 0 && (
-                  <p className="text-xs text-gray-500 font-medium text-center">
+                  <p className="text-[10px] sm:text-xs text-gray-500 font-medium text-center">
                     Будем исследовать весь Краснодарский край!
                   </p>
                 )}
@@ -239,20 +306,20 @@ export function GroupFighterSelect({ onComplete }: GroupFighterSelectProps) {
           {step > 1 && (
             <button 
               onClick={() => setStep(s => s - 1)}
-              className="zelda-btn bg-white py-3 px-4 flex items-center gap-2 text-sm"
+              className="zelda-btn bg-white py-2.5 sm:py-3 px-3 sm:px-4 flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm"
             >
-              <ChevronLeft className="w-4 h-4" />
+              <ChevronLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               Назад
             </button>
           )}
           <button 
-            onClick={() => step < 3 ? setStep(s => s + 1) : onComplete()}
-            className="zelda-btn flex-1 py-3 flex items-center justify-center gap-2"
+            onClick={() => step < TOTAL_STEPS ? setStep(s => s + 1) : onComplete()}
+            className="zelda-btn flex-1 py-2.5 sm:py-3 flex items-center justify-center gap-1.5 sm:gap-2 text-sm sm:text-base"
           >
-            {step < 3 ? (
+            {step < TOTAL_STEPS ? (
               <>
                 Далее
-                <ChevronRight className="w-4 h-4" />
+                <ChevronRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               </>
             ) : (
               'Искать сокровища'
