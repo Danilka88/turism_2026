@@ -27,8 +27,8 @@ function App() {
     setState('final_route');
   };
 
-  const handleWineTourBuild = (location: Location) => {
-    setAcceptedLocations([location]);
+  const handleWineTourBuild = (locations: Location[]) => {
+    setAcceptedLocations(locations);
     setSelectedExtras({});
     setState('final_route');
   };

@@ -4,6 +4,7 @@ import {
   Camera, Wine, MapPin, Check, 
   ChevronRight, Sparkles, Star, Clock, X, Heart
 } from 'lucide-react';
+import { LOCATIONS } from '../data';
 import type { Location } from '../types';
 
 const WINE_BRANDS = [
@@ -52,9 +53,31 @@ interface WineRecognitionResult {
 }
 
 interface WineScannerProps {
-  onBuildTour: (location: Location) => void;
+  onBuildTour: (locations: Location[]) => void;
   onBack: () => void;
 }
+
+const getNearbyLocations = (wineryId: string): Location[] => {
+  const wineryMap: Record<string, number[]> = {
+    'skalistiy': [4, 6, 1],
+    'fanagoria': [7, 8, 2],
+    'kuban': [1, 5, 6],
+  };
+  
+  const nearbyIds = wineryMap[wineryId] || [1, 2, 3];
+  return LOCATIONS.filter(loc => nearbyIds.includes(loc.id));
+};
+
+const getWineryLocation = (wineryId: string): Location => {
+  const wineryMap: Record<string, number> = {
+    'skalistiy': 1,
+    'fanagoria': 1,
+    'kuban': 5,
+  };
+  
+  const wineryLocId = wineryMap[wineryId] || 5;
+  return LOCATIONS.find(l => l.id === wineryLocId) || LOCATIONS[0];
+};
 
 export function WineScanner({ onBuildTour, onBack }: WineScannerProps) {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
@@ -360,18 +383,42 @@ export function WineScanner({ onBuildTour, onBack }: WineScannerProps) {
               ))}
             </div>
 
+            {/* Nearby Locations Preview */}
+            <div className="border-t border-white/10 pt-6 mb-4">
+              <h3 className="font-bold text-white mb-3 flex items-center gap-2">
+                <MapPin className="w-4 h-4 text-purple-400" />
+                Что рядом с {result.brand.shortName}
+              </h3>
+              <div className="grid grid-cols-3 gap-2 mb-4">
+                {getNearbyLocations(result.brand.id).slice(0, 3).map((loc) => (
+                  <div key={loc.id} className="bg-white/10 rounded-xl p-2 text-center">
+                    <img 
+                      src={loc.img} 
+                      alt={loc.title}
+                      className="w-full h-16 object-cover rounded-lg mb-1"
+                    />
+                    <span className="text-xs text-white/80 line-clamp-1">{loc.title.split(' ')[0]}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
             {/* Add to Route */}
             <div className="border-t border-white/10 pt-6">
-              <h3 className="font-bold text-white mb-3">Добавить в свой маршрут?</h3>
+              <h3 className="font-bold text-white mb-2">Добавить в свой маршрут?</h3>
               <p className="text-white/60 text-sm mb-4">
-                Мы включим эту винодельню в ваш персональный маршрут с другими местами Краснодарского края
+                Включаем винодельню + {getNearbyLocations(result.brand.id).length} близлежащих места
               </p>
               <button
-                onClick={() => onBuildTour(result.brand as unknown as Location)}
+                onClick={() => {
+                  const wineryLocation = getWineryLocation(result.brand.id);
+                  const nearby = getNearbyLocations(result.brand.id);
+                  onBuildTour([wineryLocation, ...nearby]);
+                }}
                 className="w-full py-4 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-bold rounded-xl transition-all flex items-center justify-center gap-2"
               >
                 <Heart className="w-5 h-5" />
-                Добавить в маршрут
+                Построить маршрут ({1 + getNearbyLocations(result.brand.id).length} мест)
               </button>
             </div>
           </motion.div>
