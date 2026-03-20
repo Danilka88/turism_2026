@@ -213,6 +213,8 @@ export function LocationCard({ location, likedInterests, onAccept, onReject }: L
             </div>
           )}
           
+          <p className="text-sm text-gray-600 leading-relaxed">{location.desc}</p>
+          
           <div className="flex flex-wrap gap-2">
             {location.tags.map((tag, i) => (
               <span 
