@@ -35,19 +35,22 @@ function generateRecommendation(location: Location, likedInterests: number[]): s
   const locationInterestIds = LOCATION_INTERESTS[location.id] || [];
   const matchedInterests = likedInterests.filter(id => locationInterestIds.includes(id));
   
-  if (matchedInterests.length === 0) {
-    return 'Отличное место для посещения!';
+  let keywords: string[];
+  
+  if (matchedInterests.length > 0) {
+    keywords = matchedInterests.flatMap(id => INTEREST_RESULTS[id] || []);
+  } else {
+    keywords = locationInterestIds.flatMap(id => INTEREST_RESULTS[id] || []);
   }
-
-  const keywords = matchedInterests.flatMap(id => INTEREST_RESULTS[id] || []);
+  
   const uniqueKeywords = [...new Set(keywords)];
   
   if (uniqueKeywords.length === 0) {
-    return 'Интересное место!';
+    return 'Отличное место для отдыха!';
   }
   
   const shortList = uniqueKeywords.slice(0, 2);
-  return `Здесь вас ждут ${shortList.join(' и ')}!`;
+  return `💡 Здесь вас ждут ${shortList.join(' и ')}!`;
 }
 
 interface LocationCardProps {
@@ -97,9 +100,9 @@ function DetailsModal({ location, likedInterests, onClose }: { location: Locatio
             </span>
           </div>
           
-          {recommendation && recommendation !== 'Отличное место для посещения!' && (
+          {recommendation && (
             <div className="bg-zelda-blue/10 p-3 rounded-xl border-[2px] border-zelda-blue">
-              <p className="font-bold text-zelda-blue text-lg">💡 {recommendation}</p>
+              <p className="font-bold text-zelda-blue text-lg">{recommendation}</p>
             </div>
           )}
           
@@ -214,12 +217,12 @@ export function LocationCard({ location, likedInterests, onAccept, onReject }: L
           </div>
         </div>
         
-        <div className="p-4 sm:p-6 flex flex-col gap-3 sm:gap-4 overflow-y-auto flex-1 min-h-0">
+          <div className="p-4 sm:p-6 flex flex-col gap-3 sm:gap-4 overflow-y-auto flex-1 min-h-0">
           <h3 className="text-xl sm:text-2xl font-black">{location.title}</h3>
           
-          {recommendation && recommendation !== 'Отличное место для посещения!' && (
+          {recommendation && (
             <div className="bg-zelda-blue/10 p-2.5 rounded-xl border-[2px] border-zelda-blue">
-              <p className="font-bold text-zelda-blue text-sm">💡 {recommendation}</p>
+              <p className="font-bold text-zelda-blue text-sm">{recommendation}</p>
             </div>
           )}
           
