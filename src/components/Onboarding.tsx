@@ -4,19 +4,37 @@ import { X, Heart } from 'lucide-react';
 import { ONBOARDING_CARDS } from '../data';
 
 interface OnboardingProps {
-  onComplete: () => void;
+  onComplete: (likedIds: number[]) => void;
 }
+
+const INTEREST_RESULTS: Record<number, string[]> = {
+  1: ['вина', 'дегустации', 'виноградников'],
+  2: ['горных прогулок', 'природы', 'эко-туризма'],
+  3: ['фермерских продуктов', 'сыроварни', 'лошадей'],
+  4: ['истории', 'дольменов', 'археологии'],
+  5: ['экстрима', 'джиппинга', 'приключений'],
+  6: ['пляжа', 'моря', 'спокойствия'],
+  7: ['казачьей культуры', 'истории Кубани', 'станиц'],
+  8: ['гастрономии', 'высокой кухни', ' lokальной еды'],
+};
 
 export function Onboarding({ onComplete }: OnboardingProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [comment, setComment] = useState('');
+  const [likedInterests, setLikedInterests] = useState<number[]>([]);
 
-  const handleSwipe = (_direction: 'left' | 'right') => {
+  const handleSwipe = (liked: boolean) => {
+    const card = ONBOARDING_CARDS[currentIndex];
+    
+    if (liked) {
+      setLikedInterests(prev => [...prev, card.id]);
+    }
+
     if (currentIndex < ONBOARDING_CARDS.length - 1) {
       setCurrentIndex(prev => prev + 1);
       setComment('');
     } else {
-      onComplete();
+      onComplete(likedInterests);
     }
   };
 
@@ -49,10 +67,10 @@ export function Onboarding({ onComplete }: OnboardingProps) {
           exit={{ scale: 0.8, opacity: 0, rotate: 5 }}
           drag="x"
           dragConstraints={{ left: 0, right: 0 }}
-            onDragEnd={(_e, { offset, velocity }: { offset: { x: number }; velocity: { x: number } }) => {
+          onDragEnd={(_e, { offset, velocity }: { offset: { x: number }; velocity: { x: number } }) => {
             const swipe = Math.abs(offset.x) * velocity.x;
-            if (swipe < -10000) handleSwipe('left');
-            else if (swipe > 10000) handleSwipe('right');
+            if (swipe < -10000) handleSwipe(false);
+            else if (swipe > 10000) handleSwipe(true);
           }}
           className="diorama-card w-full max-w-sm overflow-hidden flex flex-col cursor-grab active:cursor-grabbing"
         >
@@ -70,10 +88,10 @@ export function Onboarding({ onComplete }: OnboardingProps) {
               className="w-full p-3 rounded-xl border-2 border-zelda-dark/20 focus:border-zelda-green outline-none resize-none h-20 bg-gray-50 font-medium"
             />
             <div className="flex justify-between gap-4 mt-2">
-              <button onClick={() => handleSwipe('left')} className="flex-1 zelda-btn bg-white py-4 flex justify-center items-center text-red-500">
+              <button onClick={() => handleSwipe(false)} className="flex-1 zelda-btn bg-white py-4 flex justify-center items-center text-red-500">
                 <X className="w-8 h-8" strokeWidth={3} />
               </button>
-              <button onClick={() => handleSwipe('right')} className="flex-1 zelda-btn bg-zelda-green text-white py-4 flex justify-center items-center">
+              <button onClick={() => handleSwipe(true)} className="flex-1 zelda-btn bg-zelda-green text-white py-4 flex justify-center items-center">
                 <Heart className="w-8 h-8 fill-current" />
               </button>
             </div>
@@ -83,3 +101,5 @@ export function Onboarding({ onComplete }: OnboardingProps) {
     </motion.div>
   );
 }
+
+export { INTEREST_RESULTS };

@@ -9,13 +9,57 @@ const TAG_ICONS: Record<string, string> = FIGHTERS.reduce((acc, f) => {
   return acc;
 }, {} as Record<string, string>);
 
+const INTEREST_RESULTS: Record<number, string[]> = {
+  1: ['вина', 'дегустации', 'виноградников'],
+  2: ['горных прогулок', 'природы', 'эко-туризма'],
+  3: ['фермерских продуктов', 'сыроварни', 'лошадей'],
+  4: ['истории', 'дольменов', 'археологии'],
+  5: ['экстрима', 'джиппинга', 'приключений'],
+  6: ['пляжа', 'моря', 'спокойствия'],
+  7: ['казачьей культуры', 'истории Кубани', 'станиц'],
+  8: ['гастрономии', 'высокой кухни', 'локальной еды'],
+};
+
+const LOCATION_INTERESTS: Record<number, number[]> = {
+  1: [1, 8],
+  2: [3, 6],
+  3: [6, 7],
+  4: [2, 6],
+  5: [1, 2],
+  6: [2, 6],
+  7: [4, 7],
+  8: [2, 5],
+};
+
+function generateRecommendation(location: Location, likedInterests: number[]): string {
+  const locationInterestIds = LOCATION_INTERESTS[location.id] || [];
+  const matchedInterests = likedInterests.filter(id => locationInterestIds.includes(id));
+  
+  if (matchedInterests.length === 0) {
+    return 'Отличное место для посещения!';
+  }
+
+  const keywords = matchedInterests.flatMap(id => INTEREST_RESULTS[id] || []);
+  const uniqueKeywords = [...new Set(keywords)];
+  
+  if (uniqueKeywords.length === 0) {
+    return 'Интересное место!';
+  }
+  
+  const shortList = uniqueKeywords.slice(0, 2);
+  return `Здесь вас ждут ${shortList.join(' и ')}!`;
+}
+
 interface LocationCardProps {
   location: Location;
+  likedInterests: number[];
   onAccept: () => void;
   onReject: () => void;
 }
 
-function DetailsModal({ location, onClose }: { location: Location; onClose: () => void }) {
+function DetailsModal({ location, likedInterests, onClose }: { location: Location; likedInterests: number[]; onClose: () => void }) {
+  const recommendation = generateRecommendation(location, likedInterests);
+  
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -52,6 +96,12 @@ function DetailsModal({ location, onClose }: { location: Location; onClose: () =
               {location.match}% совпадение
             </span>
           </div>
+          
+          {recommendation && recommendation !== 'Отличное место для посещения!' && (
+            <div className="bg-zelda-blue/10 p-3 rounded-xl border-[2px] border-zelda-blue">
+              <p className="font-bold text-zelda-blue text-lg">💡 {recommendation}</p>
+            </div>
+          )}
           
           <p className="text-gray-700 leading-relaxed text-lg">{location.desc}</p>
           
@@ -131,8 +181,9 @@ function VirtualVisit({ location }: { location: Location }) {
   );
 }
 
-export function LocationCard({ location, onAccept, onReject }: LocationCardProps) {
+export function LocationCard({ location, likedInterests, onAccept, onReject }: LocationCardProps) {
   const [showDetails, setShowDetails] = useState(false);
+  const recommendation = generateRecommendation(location, likedInterests);
   
   return (
     <>
@@ -155,6 +206,12 @@ export function LocationCard({ location, onAccept, onReject }: LocationCardProps
         
         <div className="p-4 sm:p-6 flex flex-col gap-3 sm:gap-4 overflow-y-auto flex-1 min-h-0">
           <h3 className="text-xl sm:text-2xl font-black">{location.title}</h3>
+          
+          {recommendation && recommendation !== 'Отличное место для посещения!' && (
+            <div className="bg-zelda-blue/10 p-2.5 rounded-xl border-[2px] border-zelda-blue">
+              <p className="font-bold text-zelda-blue text-sm">💡 {recommendation}</p>
+            </div>
+          )}
           
           <div className="flex flex-wrap gap-2">
             {location.tags.map((tag, i) => (
@@ -194,6 +251,7 @@ export function LocationCard({ location, onAccept, onReject }: LocationCardProps
       {showDetails && (
         <DetailsModal 
           location={location} 
+          likedInterests={likedInterests}
           onClose={() => setShowDetails(false)} 
         />
       )}

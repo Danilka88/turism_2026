@@ -16,7 +16,7 @@ import type { AppState } from './types';
 function App() {
   const [state, setState] = useState<AppState>('landing');
   const [isBusinessMode, setIsBusinessMode] = useState(false);
-  const [selectedLocations] = useState(LOCATIONS);
+  const [likedInterests, setLikedInterests] = useState<number[]>([]);
 
   const handleRouteSelectionComplete = () => {
     setState('final_route');
@@ -44,7 +44,10 @@ function App() {
             <Landing onStart={() => setState('onboarding')} />
           )}
           {state === 'onboarding' && (
-            <Onboarding onComplete={() => setState('profile')} />
+            <Onboarding onComplete={(liked) => {
+              setLikedInterests(liked);
+              setState('profile');
+            }} />
           )}
           {state === 'profile' && (
             <GroupFighterSelect onComplete={() => setState('loading')} />
@@ -54,12 +57,13 @@ function App() {
           )}
           {state === 'route_selection' && (
             <ResultsLayout 
-              locations={selectedLocations}
+              locations={LOCATIONS}
+              likedInterests={likedInterests}
               onFinish={handleRouteSelectionComplete} 
             />
           )}
           {state === 'final_route' && (
-            <FinalRoute locations={selectedLocations} />
+            <FinalRoute locations={LOCATIONS} />
           )}
         </AnimatePresence>
       )}

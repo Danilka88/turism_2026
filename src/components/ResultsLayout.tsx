@@ -19,10 +19,11 @@ L.Marker.prototype.options.icon = DefaultIcon;
 
 interface ResultsLayoutProps {
   locations: Location[];
+  likedInterests: number[];
   onFinish: () => void;
 }
 
-export function ResultsLayout({ locations, onFinish }: ResultsLayoutProps) {
+export function ResultsLayout({ locations, likedInterests, onFinish }: ResultsLayoutProps) {
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
@@ -36,7 +37,7 @@ export function ResultsLayout({ locations, onFinish }: ResultsLayoutProps) {
           <span className="text-gray-500">Загрузка карты...</span>
         </div>
         <div className="lg:w-1/2 p-4 lg:p-8 h-[60vh] lg:h-screen overflow-y-auto">
-          <RouteTinderCards locations={locations} onFinish={onFinish} />
+          <RouteTinderCards locations={locations} likedInterests={likedInterests} onFinish={onFinish} />
         </div>
       </div>
     );
@@ -63,7 +64,7 @@ export function ResultsLayout({ locations, onFinish }: ResultsLayoutProps) {
         </MapContainer>
       </div>
       <div className="lg:w-1/2 p-2 sm:p-4 lg:h-screen overflow-hidden flex flex-col">
-        <RouteTinderCards locations={locations} onFinish={onFinish} />
+        <RouteTinderCards locations={locations} likedInterests={likedInterests} onFinish={onFinish} />
       </div>
     </div>
   );

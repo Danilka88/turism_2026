@@ -6,13 +6,14 @@ import type { Location } from '../types';
 
 interface RouteTinderCardsProps {
   locations: Location[];
+  likedInterests: number[];
   onFinish: () => void;
 }
 
 type Season = 'Весна' | 'Лето' | 'Осень' | 'Зима';
 const SEASONS: Season[] = ['Весна', 'Лето', 'Осень', 'Зима'];
 
-export function RouteTinderCards({ locations, onFinish }: RouteTinderCardsProps) {
+export function RouteTinderCards({ locations, likedInterests, onFinish }: RouteTinderCardsProps) {
   const [deck, setDeck] = useState<Location[]>(locations);
   const [accepted, setAccepted] = useState<Location[]>([]);
   const [season, setSeason] = useState<Season>('Лето');
@@ -74,6 +75,7 @@ export function RouteTinderCards({ locations, onFinish }: RouteTinderCardsProps)
           <div key={currentLoc.id} className="flex-1 min-h-0">
             <LocationCard 
               location={currentLoc}
+              likedInterests={likedInterests}
               onAccept={() => handleAccept(currentLoc)}
               onReject={() => handleReject(currentLoc)}
             />
