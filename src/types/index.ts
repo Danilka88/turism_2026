@@ -17,6 +17,7 @@ export interface Location {
   desc: string;
   match: number;
   matchText: string;
+  tags: string[];
   lat: number;
   lng: number;
   img: string;

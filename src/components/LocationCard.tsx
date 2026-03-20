@@ -49,6 +49,17 @@ function DetailsModal({ location, onClose }: { location: Location; onClose: () =
           
           <p className="text-gray-700 leading-relaxed text-lg">{location.desc}</p>
           
+          <div className="flex flex-wrap gap-2">
+            {location.tags.map((tag, i) => (
+              <span 
+                key={i}
+                className="px-3 py-1.5 bg-zelda-purple/20 text-zelda-dark font-bold text-sm rounded-full border-2 border-zelda-purple/50"
+              >
+                ✨ {tag}
+              </span>
+            ))}
+          </div>
+          
           <div className="bg-zelda-yellow/30 p-4 rounded-xl border-[3px] border-zelda-dark">
             <p className="font-bold text-lg">✨ {location.matchText}</p>
           </div>
@@ -137,6 +148,17 @@ export function LocationCard({ location, onAccept, onReject }: LocationCardProps
         
         <div className="p-4 sm:p-6 flex flex-col gap-3 sm:gap-4 overflow-y-auto flex-1 min-h-0">
           <h3 className="text-xl sm:text-2xl font-black">{location.title}</h3>
+          
+          <div className="flex flex-wrap gap-1.5">
+            {location.tags.map((tag, i) => (
+              <span 
+                key={i}
+                className="px-2.5 py-1 bg-zelda-purple/20 text-zelda-dark font-bold text-xs rounded-full border border-zelda-purple/50"
+              >
+                ✨ {tag}
+              </span>
+            ))}
+          </div>
           
           <button 
             onClick={() => setShowDetails(true)}
