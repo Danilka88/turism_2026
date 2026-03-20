@@ -54,7 +54,8 @@ export type AppState =
   | 'profile' 
   | 'loading' 
   | 'route_selection' 
-  | 'final_route';
+  | 'final_route'
+  | 'wine_scanner';
 
 export interface UserAnswers {
   interests: Record<number, { liked: boolean; comment: string }>;

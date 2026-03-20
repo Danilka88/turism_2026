@@ -10,6 +10,7 @@ import {
   ResultsLayout,
   FinalRoute,
   BusinessDashboard,
+  WineScanner,
 } from './components';
 import type { AppState, SelectedExtras, Location } from './types';
 
@@ -23,6 +24,12 @@ function App() {
   const handleRouteSelectionComplete = (accepted: Location[], extras: SelectedExtras) => {
     setAcceptedLocations(accepted);
     setSelectedExtras(extras);
+    setState('final_route');
+  };
+
+  const handleWineTourBuild = (location: Location) => {
+    setAcceptedLocations([location]);
+    setSelectedExtras({});
     setState('final_route');
   };
 
@@ -47,7 +54,16 @@ function App() {
       ) : (
         <AnimatePresence mode="wait">
           {state === 'landing' && (
-            <Landing onStart={() => setState('onboarding')} />
+            <Landing 
+              onStart={() => setState('onboarding')} 
+              onWineScan={() => setState('wine_scanner')}
+            />
+          )}
+          {state === 'wine_scanner' && (
+            <WineScanner 
+              onBuildTour={handleWineTourBuild}
+              onBack={() => setState('landing')}
+            />
           )}
           {state === 'onboarding' && (
             <Onboarding onComplete={(liked) => {

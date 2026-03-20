@@ -1,11 +1,12 @@
 import { motion } from 'motion/react';
-import { Compass, Play } from 'lucide-react';
+import { Compass, Play, Wine } from 'lucide-react';
 
 interface LandingProps {
   onStart: () => void;
+  onWineScan: () => void;
 }
 
-export function Landing({ onStart }: LandingProps) {
+export function Landing({ onStart, onWineScan }: LandingProps) {
   return (
     <motion.div 
       initial={{ opacity: 0 }} 
@@ -43,6 +44,19 @@ export function Landing({ onStart }: LandingProps) {
           <Play className="w-6 h-6 fill-current" /> 
           Начать приключение
         </button>
+        
+        <div className="w-full border-t border-white/20 pt-4 mt-2">
+          <p className="text-sm text-white/60 mb-3">Или начни с бутылки вина</p>
+          <motion.button 
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={onWineScan}
+            className="w-full py-3 px-6 bg-gradient-to-r from-purple-500/80 to-pink-500/80 hover:from-purple-600/80 hover:to-pink-600/80 text-white font-bold rounded-xl transition-all flex items-center justify-center gap-2 border border-white/20"
+          >
+            <Wine className="w-5 h-5" />
+            Сканировать бутылку
+          </motion.button>
+        </div>
       </motion.div>
     </motion.div>
   );

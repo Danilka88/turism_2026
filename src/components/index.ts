@@ -7,3 +7,4 @@ export { LocationCard } from './LocationCard';
 export { ResultsLayout } from './ResultsLayout';
 export { FinalRoute } from './FinalRoute';
 export { BusinessDashboard } from './BusinessDashboard';
+export { WineScanner } from './WineScanner';
