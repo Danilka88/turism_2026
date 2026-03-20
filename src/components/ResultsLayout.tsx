@@ -3,7 +3,7 @@ import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import { RouteTinderCards } from './RouteTinderCards';
-import type { Location } from '../types';
+import type { Location, SelectedExtras } from '../types';
 
 const DefaultIcon = L.icon({
   iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
@@ -20,11 +20,12 @@ L.Marker.prototype.options.icon = DefaultIcon;
 interface ResultsLayoutProps {
   locations: Location[];
   likedInterests: number[];
-  onFinish: () => void;
+  onFinish: (extras: SelectedExtras) => void;
 }
 
 export function ResultsLayout({ locations, likedInterests, onFinish }: ResultsLayoutProps) {
   const [isMounted, setIsMounted] = useState(false);
+  const [selectedExtras, setSelectedExtras] = useState<SelectedExtras>({});
 
   useEffect(() => {
     setIsMounted(true);
@@ -37,7 +38,13 @@ export function ResultsLayout({ locations, likedInterests, onFinish }: ResultsLa
           <span className="text-gray-500">Загрузка карты...</span>
         </div>
         <div className="lg:w-1/2 p-4 lg:p-8 h-[60vh] lg:h-screen overflow-y-auto">
-          <RouteTinderCards locations={locations} likedInterests={likedInterests} onFinish={onFinish} />
+          <RouteTinderCards 
+            locations={locations} 
+            likedInterests={likedInterests}
+            selectedExtras={selectedExtras}
+            onUpdateExtras={setSelectedExtras}
+            onFinish={onFinish} 
+          />
         </div>
       </div>
     );
@@ -64,7 +71,13 @@ export function ResultsLayout({ locations, likedInterests, onFinish }: ResultsLa
         </MapContainer>
       </div>
       <div className="lg:w-1/2 p-2 sm:p-4 lg:h-screen overflow-hidden flex flex-col">
-        <RouteTinderCards locations={locations} likedInterests={likedInterests} onFinish={onFinish} />
+        <RouteTinderCards 
+          locations={locations} 
+          likedInterests={likedInterests}
+          selectedExtras={selectedExtras}
+          onUpdateExtras={setSelectedExtras}
+          onFinish={onFinish} 
+        />
       </div>
     </div>
   );

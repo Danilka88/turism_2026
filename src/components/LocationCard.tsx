@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { motion } from 'motion/react';
-import { X, Heart, Maximize, Play, Users, Info } from 'lucide-react';
+import { X, Heart, Maximize, Play, Users, Info, Utensils, Gamepad2 } from 'lucide-react';
 import { FIGHTERS } from '../data';
-import type { Location } from '../types';
+import type { Location, SelectedExtras } from '../types';
 
 const TAG_ICONS: Record<string, string> = FIGHTERS.reduce((acc, f) => {
   acc[f.name] = f.icon;
@@ -53,14 +53,165 @@ function generateRecommendation(location: Location, likedInterests: number[]): s
   return `💡 Здесь вас ждут ${shortList.join(' и ')}!`;
 }
 
-interface LocationCardProps {
+interface FoodModalProps {
   location: Location;
-  likedInterests: number[];
-  onAccept: () => void;
-  onReject: () => void;
+  selectedFood: string[];
+  onToggleFood: (id: string) => void;
+  onClose: () => void;
 }
 
-function DetailsModal({ location, likedInterests, onClose }: { location: Location; likedInterests: number[]; onClose: () => void }) {
+function FoodModal({ location, selectedFood, onToggleFood, onClose }: FoodModalProps) {
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 z-50 bg-black/70 p-4 flex items-center justify-center backdrop-blur-sm"
+      onClick={onClose}
+    >
+      <motion.div
+        initial={{ scale: 0.9, y: 20 }}
+        animate={{ scale: 1, y: 0 }}
+        exit={{ scale: 0.9, y: 20 }}
+        className="diorama-card w-full max-w-lg max-h-[85vh] overflow-y-auto"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="p-4 flex flex-col gap-4">
+          <div className="flex items-center justify-between">
+            <h3 className="text-xl font-black flex items-center gap-2">
+              <Utensils className="w-6 h-6" />
+              Что можно поесть
+            </h3>
+            <button onClick={onClose} className="bg-gray-200 rounded-full p-1.5 border-2 border-zelda-dark hover:bg-red-400 hover:text-white transition-colors">
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+          
+          <div className="flex flex-col gap-3">
+            {location.foodOptions.map((food) => {
+              const isSelected = selectedFood.includes(food.id);
+              return (
+                <div 
+                  key={food.id}
+                  onClick={() => onToggleFood(food.id)}
+                  className={`p-3 rounded-xl border-[2px] cursor-pointer transition-all ${
+                    isSelected 
+                      ? 'bg-zelda-green/20 border-zelda-green' 
+                      : 'bg-white border-zelda-dark/30 hover:border-zelda-dark'
+                  }`}
+                >
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-2xl">{food.icon}</span>
+                    <span className="font-black text-sm flex-1">{food.name}</span>
+                    {isSelected && (
+                      <div className="w-6 h-6 bg-zelda-green rounded-full flex items-center justify-center">
+                        <X className="w-4 h-4 text-white" />
+                      </div>
+                    )}
+                  </div>
+                  {food.places && food.places.length > 0 && (
+                    <div className="flex flex-wrap gap-1 ml-8">
+                      {food.places.map((place, i) => (
+                        <span key={i} className="text-xs bg-gray-100 px-2 py-0.5 rounded-full text-gray-600">
+                          {place}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+          
+          <button onClick={onClose} className="zelda-btn py-3">
+            Готово {selectedFood.length > 0 && `(${selectedFood.length} выбрано)`}
+          </button>
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+}
+
+interface ActivitiesModalProps {
+  location: Location;
+  selectedActivities: string[];
+  onToggleActivity: (id: string) => void;
+  onClose: () => void;
+}
+
+function ActivitiesModal({ location, selectedActivities, onToggleActivity, onClose }: ActivitiesModalProps) {
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 z-50 bg-black/70 p-4 flex items-center justify-center backdrop-blur-sm"
+      onClick={onClose}
+    >
+      <motion.div
+        initial={{ scale: 0.9, y: 20 }}
+        animate={{ scale: 1, y: 0 }}
+        exit={{ scale: 0.9, y: 20 }}
+        className="diorama-card w-full max-w-lg max-h-[85vh] overflow-y-auto"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="p-4 flex flex-col gap-4">
+          <div className="flex items-center justify-between">
+            <h3 className="text-xl font-black flex items-center gap-2">
+              <Gamepad2 className="w-6 h-6" />
+              Чем заняться
+            </h3>
+            <button onClick={onClose} className="bg-gray-200 rounded-full p-1.5 border-2 border-zelda-dark hover:bg-red-400 hover:text-white transition-colors">
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+          
+          <div className="flex flex-col gap-3">
+            {location.activities.map((activity) => {
+              const isSelected = selectedActivities.includes(activity.id);
+              return (
+                <div 
+                  key={activity.id}
+                  onClick={() => onToggleActivity(activity.id)}
+                  className={`p-3 rounded-xl border-[2px] cursor-pointer transition-all ${
+                    isSelected 
+                      ? 'bg-zelda-blue/20 border-zelda-blue' 
+                      : 'bg-white border-zelda-dark/30 hover:border-zelda-dark'
+                  }`}
+                >
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-2xl">{activity.icon}</span>
+                    <span className="font-black text-sm flex-1">{activity.name}</span>
+                    {isSelected && (
+                      <div className="w-6 h-6 bg-zelda-blue rounded-full flex items-center justify-center">
+                        <X className="w-4 h-4 text-white" />
+                      </div>
+                    )}
+                  </div>
+                  {activity.description && (
+                    <p className="text-xs text-gray-500 ml-8">{activity.description}</p>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+          
+          <button onClick={onClose} className="zelda-btn py-3">
+            Готово {selectedActivities.length > 0 && `(${selectedActivities.length} выбрано)`}
+          </button>
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+}
+
+interface DetailsModalProps {
+  location: Location;
+  likedInterests: number[];
+  onClose: () => void;
+}
+
+function DetailsModal({ location, likedInterests, onClose }: DetailsModalProps) {
   const recommendation = generateRecommendation(location, likedInterests);
   
   return (
@@ -161,8 +312,8 @@ function VirtualVisit({ location }: { location: Location }) {
   const [open, setOpen] = useState(false);
   
   if (!open) return (
-    <button onClick={() => setOpen(true)} className="zelda-btn bg-zelda-blue text-white py-3 px-4 flex items-center gap-2 w-full justify-center">
-      <Maximize className="w-5 h-5" /> 
+    <button onClick={() => setOpen(true)} className="zelda-btn bg-zelda-blue text-white py-2 px-3 flex items-center gap-2 w-full justify-center text-sm">
+      <Maximize className="w-4 h-4" /> 
       Виртуальный визит
     </button>
   );
@@ -171,22 +322,22 @@ function VirtualVisit({ location }: { location: Location }) {
     <div className="fixed inset-0 z-50 bg-zelda-dark/95 p-4 flex flex-col items-center justify-center backdrop-blur-sm">
       <div className="diorama-card w-full max-w-3xl p-6 flex flex-col gap-6">
         <div className="flex justify-between items-center">
-          <h3 className="font-black text-2xl">Виртуальный визит: {location.title}</h3>
+          <h3 className="font-black text-xl">Виртуальный визит: {location.title}</h3>
           <button onClick={() => setOpen(false)} className="bg-gray-200 rounded-full p-2 border-2 border-zelda-dark hover:bg-red-400 transition-colors">
-            <X className="w-6 h-6" />
+            <X className="w-5 h-5" />
           </button>
         </div>
         <div className="aspect-video bg-gray-800 rounded-2xl overflow-hidden border-[3px] border-zelda-dark relative flex items-center justify-center shadow-inner">
           <img src={location.img} className="w-full h-full object-cover opacity-60" alt="360" />
-          <div className="absolute font-black text-white text-3xl flex flex-col items-center gap-4 drop-shadow-lg">
-            <div className="bg-zelda-blue/80 p-4 rounded-full border-2 border-white backdrop-blur-md">
-              <Play className="w-12 h-12 fill-current" />
+          <div className="absolute font-black text-white text-2xl flex flex-col items-center gap-3 drop-shadow-lg">
+            <div className="bg-zelda-blue/80 p-3 rounded-full border-2 border-white backdrop-blur-md">
+              <Play className="w-10 h-10 fill-current" />
             </div>
             360° Панорама
           </div>
         </div>
-        <button className="zelda-btn bg-zelda-purple text-white py-4 text-xl flex items-center justify-center gap-3">
-          <Users className="w-6 h-6" /> 
+        <button className="zelda-btn bg-zelda-purple text-white py-3 text-lg flex items-center justify-center gap-2">
+          <Users className="w-5 h-5" /> 
           Позвонить для онлайн осмотра
         </button>
       </div>
@@ -194,9 +345,43 @@ function VirtualVisit({ location }: { location: Location }) {
   );
 }
 
-export function LocationCard({ location, likedInterests, onAccept, onReject }: LocationCardProps) {
+interface LocationCardProps {
+  location: Location;
+  likedInterests: number[];
+  selectedExtras: SelectedExtras;
+  onUpdateExtras: (extras: SelectedExtras) => void;
+  onAccept: () => void;
+  onReject: () => void;
+}
+
+export function LocationCard({ location, likedInterests, selectedExtras, onUpdateExtras, onAccept, onReject }: LocationCardProps) {
   const [showDetails, setShowDetails] = useState(false);
+  const [showFood, setShowFood] = useState(false);
+  const [showActivities, setShowActivities] = useState(false);
+  
   const recommendation = generateRecommendation(location, likedInterests);
+  
+  const extras = selectedExtras[location.id] || { food: [], activities: [] };
+  
+  const toggleFood = (id: string) => {
+    const newFood = extras.food.includes(id)
+      ? extras.food.filter(f => f !== id)
+      : [...extras.food, id];
+    onUpdateExtras({
+      ...selectedExtras,
+      [location.id]: { ...extras, food: newFood }
+    });
+  };
+  
+  const toggleActivity = (id: string) => {
+    const newActivities = extras.activities.includes(id)
+      ? extras.activities.filter(a => a !== id)
+      : [...extras.activities, id];
+    onUpdateExtras({
+      ...selectedExtras,
+      [location.id]: { ...extras, activities: newActivities }
+    });
+  };
   
   return (
     <>
@@ -207,56 +392,73 @@ export function LocationCard({ location, likedInterests, onAccept, onReject }: L
         className="diorama-card flex flex-col flex-1 overflow-hidden"
         style={{ maxHeight: 'calc(100vh - 200px)' }}
       >
-        <div className="relative h-48 sm:h-64 shrink-0">
+        <div className="relative h-40 sm:h-48 shrink-0">
           <img src={location.img} alt={location.title} className="w-full h-full object-cover border-b-[3px] border-zelda-dark" />
-          <div className="absolute top-4 right-4 bg-zelda-green text-white font-black px-4 py-2 rounded-full border-[3px] border-zelda-dark shadow-[4px_4px_0px_#3a1952] text-lg">
-            {location.match}% совпадение
+          <div className="absolute top-3 right-3 sm:top-4 sm:right-4 bg-zelda-green text-white font-black px-3 py-1 sm:px-4 sm:py-2 rounded-full border-[2px] sm:border-[3px] border-zelda-dark shadow-[4px_4px_0px_#3a1952] text-sm sm:text-lg">
+            {location.match}%
           </div>
-          <div className="absolute bottom-4 left-4 bg-white/90 backdrop-blur-sm px-4 py-2 rounded-xl border-2 border-zelda-dark font-bold text-sm shadow-lg">
+          <div className="absolute bottom-3 left-3 sm:bottom-4 sm:left-4 bg-white/90 backdrop-blur-sm px-3 py-1 sm:px-4 sm:py-2 rounded-xl border-2 border-zelda-dark font-bold text-xs sm:text-sm shadow-lg">
             {location.matchText}
           </div>
         </div>
         
-          <div className="p-4 sm:p-6 flex flex-col gap-3 sm:gap-4 overflow-y-auto flex-1 min-h-0">
-          <h3 className="text-xl sm:text-2xl font-black">{location.title}</h3>
+        <div className="p-3 sm:p-4 flex flex-col gap-2 sm:gap-3 overflow-y-auto flex-1 min-h-0">
+          <h3 className="text-lg sm:text-xl font-black">{location.title}</h3>
           
           {recommendation && (
-            <div className="bg-zelda-blue/10 p-2.5 rounded-xl border-[2px] border-zelda-blue">
-              <p className="font-bold text-zelda-blue text-sm">{recommendation}</p>
+            <div className="bg-zelda-blue/10 p-2 sm:p-2.5 rounded-xl border-[2px] border-zelda-blue">
+              <p className="font-bold text-zelda-blue text-xs sm:text-sm">{recommendation}</p>
             </div>
           )}
           
-          <p className="text-sm text-gray-600 leading-relaxed">{location.desc}</p>
+          <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">{location.desc}</p>
           
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-1 sm:gap-2">
             {location.tags.map((tag, i) => (
               <span 
                 key={i}
-                className="px-2.5 py-1 bg-zelda-purple/20 text-zelda-dark font-bold text-xs rounded-full border border-zelda-purple/50 flex items-center gap-1"
+                className="px-2 py-0.5 sm:px-2.5 sm:py-1 bg-zelda-purple/20 text-zelda-dark font-bold text-[10px] sm:text-xs rounded-full border border-zelda-purple/50 flex items-center gap-1"
               >
-                <span>{TAG_ICONS[tag] || '✨'}</span>
+                <span className="text-sm">{TAG_ICONS[tag] || '✨'}</span>
                 {tag}
               </span>
             ))}
           </div>
           
+          <div className="flex gap-2">
+            <button 
+              onClick={() => setShowFood(true)}
+              className={`flex-1 zelda-btn py-2 px-2 flex items-center justify-center gap-1.5 text-xs sm:text-sm ${extras.food.length > 0 ? 'bg-zelda-green text-white' : 'bg-zelda-yellow'}`}
+            >
+              <Utensils className="w-4 h-4" /> 
+              Еда {extras.food.length > 0 && `(${extras.food.length})`}
+            </button>
+            <button 
+              onClick={() => setShowActivities(true)}
+              className={`flex-1 zelda-btn py-2 px-2 flex items-center justify-center gap-1.5 text-xs sm:text-sm ${extras.activities.length > 0 ? 'bg-zelda-blue text-white' : 'bg-zelda-purple text-white'}`}
+            >
+              <Gamepad2 className="w-4 h-4" /> 
+              Активности {extras.activities.length > 0 && `(${extras.activities.length})`}
+            </button>
+          </div>
+          
           <button 
             onClick={() => setShowDetails(true)}
-            className="zelda-btn bg-zelda-yellow py-3 px-4 flex items-center gap-2 w-full justify-center"
+            className="zelda-btn bg-zelda-yellow py-2 px-3 flex items-center gap-2 w-full justify-center text-sm"
           >
-            <Info className="w-5 h-5" /> 
+            <Info className="w-4 h-4" /> 
             Подробнее
           </button>
 
           <VirtualVisit location={location} />
 
-          <div className="flex gap-4 mt-auto pt-4">
-            <button onClick={onReject} className="flex-1 zelda-btn bg-white py-3 sm:py-4 flex items-center justify-center gap-2 text-red-500">
-              <X className="w-5 h-5 sm:w-6 sm:h-6" strokeWidth={3} /> 
+          <div className="flex gap-2 mt-auto pt-2">
+            <button onClick={onReject} className="flex-1 zelda-btn bg-white py-2 sm:py-3 flex items-center justify-center gap-1.5 text-red-500 text-xs sm:text-sm">
+              <X className="w-4 h-4 sm:w-5 sm:h-5" strokeWidth={3} /> 
               Заменить
             </button>
-            <button onClick={onAccept} className="flex-1 zelda-btn bg-zelda-green text-white py-3 sm:py-4 flex items-center justify-center gap-2">
-              <Heart className="w-5 h-5 sm:w-6 sm:h-6 fill-current" /> 
+            <button onClick={onAccept} className="flex-1 zelda-btn bg-zelda-green text-white py-2 sm:py-3 flex items-center justify-center gap-1.5 text-xs sm:text-sm">
+              <Heart className="w-4 h-4 sm:w-5 sm:h-5 fill-current" /> 
               Принять
             </button>
           </div>
@@ -268,6 +470,24 @@ export function LocationCard({ location, likedInterests, onAccept, onReject }: L
           location={location} 
           likedInterests={likedInterests}
           onClose={() => setShowDetails(false)} 
+        />
+      )}
+      
+      {showFood && (
+        <FoodModal 
+          location={location}
+          selectedFood={extras.food}
+          onToggleFood={toggleFood}
+          onClose={() => setShowFood(false)}
+        />
+      )}
+      
+      {showActivities && (
+        <ActivitiesModal 
+          location={location}
+          selectedActivities={extras.activities}
+          onToggleActivity={toggleActivity}
+          onClose={() => setShowActivities(false)}
         />
       )}
     </>

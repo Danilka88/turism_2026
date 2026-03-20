@@ -11,6 +11,20 @@ export interface Fighter {
   color: string;
 }
 
+export interface FoodOption {
+  id: string;
+  name: string;
+  icon: string;
+  places?: string[];
+}
+
+export interface ActivityOption {
+  id: string;
+  name: string;
+  icon: string;
+  description?: string;
+}
+
 export interface Location {
   id: number;
   title: string;
@@ -23,6 +37,15 @@ export interface Location {
   lng: number;
   img: string;
   videos: string[];
+  foodOptions: FoodOption[];
+  activities: ActivityOption[];
+}
+
+export interface SelectedExtras {
+  [locationId: number]: {
+    food: string[];
+    activities: string[];
+  };
 }
 
 export type AppState = 

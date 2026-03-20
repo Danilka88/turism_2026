@@ -2,18 +2,20 @@ import { useState } from 'react';
 import { AnimatePresence } from 'motion/react';
 import { LocationCard } from './LocationCard';
 import { Check } from 'lucide-react';
-import type { Location } from '../types';
+import type { Location, SelectedExtras } from '../types';
 
 interface RouteTinderCardsProps {
   locations: Location[];
   likedInterests: number[];
-  onFinish: () => void;
+  selectedExtras: SelectedExtras;
+  onUpdateExtras: (extras: SelectedExtras) => void;
+  onFinish: (extras: SelectedExtras) => void;
 }
 
 type Season = 'Весна' | 'Лето' | 'Осень' | 'Зима';
 const SEASONS: Season[] = ['Весна', 'Лето', 'Осень', 'Зима'];
 
-export function RouteTinderCards({ locations, likedInterests, onFinish }: RouteTinderCardsProps) {
+export function RouteTinderCards({ locations, likedInterests, selectedExtras, onUpdateExtras, onFinish }: RouteTinderCardsProps) {
   const [deck, setDeck] = useState<Location[]>(locations);
   const [accepted, setAccepted] = useState<Location[]>([]);
   const [season, setSeason] = useState<Season>('Лето');
@@ -29,6 +31,10 @@ export function RouteTinderCards({ locations, likedInterests, onFinish }: RouteT
     setDeck(prev => prev.filter(d => d.id !== loc.id));
   };
 
+  const handleFinish = () => {
+    onFinish(selectedExtras);
+  };
+
   const isSelectionComplete = deck.length === 0 || accepted.length >= MAX_SELECTION;
 
   if (isSelectionComplete) {
@@ -42,7 +48,7 @@ export function RouteTinderCards({ locations, likedInterests, onFinish }: RouteT
           <p className="font-bold text-gray-600">
             Мы собрали {accepted.length} идеальных локаций для вашей группы.
           </p>
-          <button onClick={onFinish} className="zelda-btn w-full py-4 text-xl">
+          <button onClick={handleFinish} className="zelda-btn w-full py-4 text-xl">
             Сформировать финальный маршрут
           </button>
         </div>
@@ -76,6 +82,8 @@ export function RouteTinderCards({ locations, likedInterests, onFinish }: RouteT
             <LocationCard 
               location={currentLoc}
               likedInterests={likedInterests}
+              selectedExtras={selectedExtras}
+              onUpdateExtras={onUpdateExtras}
               onAccept={() => handleAccept(currentLoc)}
               onReject={() => handleReject(currentLoc)}
             />

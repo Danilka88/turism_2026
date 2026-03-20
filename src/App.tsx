@@ -11,14 +11,16 @@ import {
   FinalRoute,
   BusinessDashboard,
 } from './components';
-import type { AppState } from './types';
+import type { AppState, SelectedExtras } from './types';
 
 function App() {
   const [state, setState] = useState<AppState>('landing');
   const [isBusinessMode, setIsBusinessMode] = useState(false);
   const [likedInterests, setLikedInterests] = useState<number[]>([]);
+  const [selectedExtras, setSelectedExtras] = useState<SelectedExtras>({});
 
-  const handleRouteSelectionComplete = () => {
+  const handleRouteSelectionComplete = (extras: SelectedExtras) => {
+    setSelectedExtras(extras);
     setState('final_route');
   };
 
@@ -63,7 +65,10 @@ function App() {
             />
           )}
           {state === 'final_route' && (
-            <FinalRoute locations={LOCATIONS} />
+            <FinalRoute 
+              locations={LOCATIONS} 
+              selectedExtras={selectedExtras}
+            />
           )}
         </AnimatePresence>
       )}
