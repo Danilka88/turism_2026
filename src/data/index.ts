@@ -1,14 +1,14 @@
 import type { OnboardingCard, Fighter, Location } from '../types';
 
 export const ONBOARDING_CARDS: OnboardingCard[] = [
-  { id: 1, text: 'Любишь ли ты вино и винодельни?', img: 'https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?auto=format&fit=crop&w=600&q=80' },
-  { id: 2, text: 'Нравятся долгие пешие прогулки в горах?', img: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=600&q=80' },
-  { id: 3, text: 'Интересуют локальные фермы и сыроварни?', img: 'https://images.unsplash.com/photo-1500595046743-cd271d694d30?auto=format&fit=crop&w=600&q=80' },
-  { id: 4, text: 'Хочешь посетить древние дольмены?', img: 'https://images.unsplash.com/photo-1533154683836-84ea7a0bc310?auto=format&fit=crop&w=600&q=80' },
-  { id: 5, text: 'Обожаешь экстремальный спорт и джиппинг?', img: 'https://images.unsplash.com/photo-1519981593452-666cf05569a9?auto=format&fit=crop&w=600&q=80' },
-  { id: 6, text: 'Мечтаешь о спокойном отдыхе на безлюдном пляже?', img: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=600&q=80' },
-  { id: 7, text: 'Интересна история и казачьи станицы?', img: 'https://images.unsplash.com/photo-1590845947698-8924d7409b56?auto=format&fit=crop&w=600&q=80' },
-  { id: 8, text: 'Любишь гастро-туры и высокую кухню?', img: 'https://images.unsplash.com/photo-1414235077428-338988a2e8c0?auto=format&fit=crop&w=600&q=80' },
+  { id: 1, text: 'Любишь ли ты вино и винодельни?', img: '/images/1.jpg' },
+  { id: 2, text: 'Нравятся долгие пешие прогулки в горах?', img: '/images/2.jpg' },
+  { id: 3, text: 'Интересуют локальные фермы и сыроварни?', img: '/images/3.jpg' },
+  { id: 4, text: 'Хочешь посетить древние дольмены?', img: '/images/4.jpg' },
+  { id: 5, text: 'Обожаешь экстремальный спорт и джиппинг?', img: '/images/5.jpg' },
+  { id: 6, text: 'Мечтаешь о спокойном отдыхе на безлюдном пляже?', img: '/images/6.jpg' },
+  { id: 7, text: 'Интересна история и казачьи станицы?', img: '/images/7.jpg' },
+  { id: 8, text: 'Любишь гастро-туры и высокую кухню?', img: '/images/8.jpg' },
 ];
 
 export const FIGHTERS: Fighter[] = [
@@ -39,8 +39,8 @@ export const LOCATIONS: Location[] = [
     tags: ['Партнёр', 'Друг', 'Бабушка'],
     lat: 44.833,
     lng: 37.316,
-    img: 'https://images.unsplash.com/photo-1566443280617-35db331c54fb?auto=format&fit=crop&w=600&q=80',
-    videos: ['https://www.youtube.com/embed/dQw4w9WgXcQ']
+    img: '/images/9.jpg',
+    videos: []
   },
   {
     id: 2,
@@ -51,8 +51,8 @@ export const LOCATIONS: Location[] = [
     tags: ['Дети', 'Сын', 'Дочь', 'Друг'],
     lat: 43.583,
     lng: 39.816,
-    img: 'https://images.unsplash.com/photo-1500595046743-cd271d694d30?auto=format&fit=crop&w=600&q=80',
-    videos: ['https://www.youtube.com/embed/dQw4w9WgXcQ']
+    img: '/images/3.jpg',
+    videos: []
   },
   {
     id: 3,
@@ -63,7 +63,7 @@ export const LOCATIONS: Location[] = [
     tags: ['Мама', 'Бабушка', 'Дочь', 'Партнёр'],
     lat: 45.233,
     lng: 37.216,
-    img: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=600&q=80',
+    img: '/images/2.jpg',
     videos: []
   },
   {
@@ -75,7 +75,7 @@ export const LOCATIONS: Location[] = [
     tags: ['Партнёр', 'Друг', 'Дочь', 'Сын'],
     lat: 44.810,
     lng: 37.440,
-    img: 'https://images.unsplash.com/photo-1533154683836-84ea7a0bc310?auto=format&fit=crop&w=600&q=80',
+    img: '/images/4.jpg',
     videos: []
   },
   {
@@ -87,7 +87,7 @@ export const LOCATIONS: Location[] = [
     tags: ['Партнёр', 'Друг', 'Друзья', 'Коллеги'],
     lat: 44.8361,
     lng: 37.4394,
-    img: 'https://images.unsplash.com/photo-1596178060671-7a80fc80b6ce?auto=format&fit=crop&w=600&q=80',
+    img: '/images/10.jpg',
     videos: []
   },
   {
@@ -99,7 +99,7 @@ export const LOCATIONS: Location[] = [
     tags: ['Мама', 'Бабушка', 'Друг', 'Дочь'],
     lat: 44.4386,
     lng: 38.1844,
-    img: 'https://images.unsplash.com/photo-1615880484746-a134be9a6ecf?auto=format&fit=crop&w=600&q=80',
+    img: '/images/11.jpg',
     videos: []
   },
   {
@@ -111,7 +111,7 @@ export const LOCATIONS: Location[] = [
     tags: ['Мама', 'Папа', 'Бабушка', 'Дедушка', 'Дети'],
     lat: 45.2167,
     lng: 36.6333,
-    img: 'https://images.unsplash.com/photo-1590845947698-8924d7409b56?auto=format&fit=crop&w=600&q=80',
+    img: '/images/7.jpg',
     videos: []
   },
   {
@@ -123,7 +123,7 @@ export const LOCATIONS: Location[] = [
     tags: ['Папа', 'Дедушка', 'Сын', 'Друг', 'Друзья'],
     lat: 44.2269,
     lng: 39.9031,
-    img: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=600&q=80',
+    img: '/images/2.jpg',
     videos: []
   }
 ];
