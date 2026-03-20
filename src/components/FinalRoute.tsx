@@ -1,5 +1,5 @@
 import { motion } from 'motion/react';
-import { CalendarDays, Send } from 'lucide-react';
+import { CalendarDays, Share2 } from 'lucide-react';
 import type { Location } from '../types';
 
 interface FinalRouteProps {
@@ -53,8 +53,8 @@ export function FinalRoute({ locations }: FinalRouteProps) {
           Забронировать всё
         </button>
         <button className="flex-1 zelda-btn bg-white py-4 text-lg flex items-center justify-center gap-2 text-zelda-dark">
-          <Send className="w-6 h-6" /> 
-          Экспорт в Telegram
+          <Share2 className="w-6 h-6" /> 
+          Поделиться
         </button>
       </div>
     </motion.div>
