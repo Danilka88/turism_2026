@@ -15,6 +15,7 @@ export interface Location {
   id: number;
   title: string;
   desc: string;
+  extendedDesc: string;
   match: number;
   matchText: string;
   tags: string[];

@@ -105,6 +105,13 @@ function DetailsModal({ location, likedInterests, onClose }: { location: Locatio
           
           <p className="text-gray-700 leading-relaxed text-lg">{location.desc}</p>
           
+          {location.extendedDesc && (
+            <div className="bg-gray-50 p-4 rounded-xl border border-gray-200">
+              <h4 className="font-black text-sm mb-2 text-zelda-dark">📖 Подробнее:</h4>
+              <p className="text-gray-600 text-sm leading-relaxed">{location.extendedDesc}</p>
+            </div>
+          )}
+          
           <div className="flex flex-wrap gap-2">
             {location.tags.map((tag, i) => (
               <span 
@@ -122,16 +129,19 @@ function DetailsModal({ location, likedInterests, onClose }: { location: Locatio
           </div>
           
           {location.videos.length > 0 && (
-            <div className="aspect-video bg-gray-800 rounded-xl border-[3px] border-zelda-dark overflow-hidden">
-              <iframe 
-                width="100%" 
-                height="100%" 
-                src={location.videos[0]} 
-                title="YouTube video player" 
-                frameBorder="0" 
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                allowFullScreen
-              />
+            <div className="flex flex-col gap-2">
+              <h4 className="font-black text-sm text-zelda-dark">🎬 Видео обзор:</h4>
+              <div className="aspect-video bg-gray-800 rounded-xl border-[3px] border-zelda-dark overflow-hidden">
+                <iframe 
+                  width="100%" 
+                  height="100%" 
+                  src={location.videos[0]} 
+                  title="YouTube video player" 
+                  frameBorder="0" 
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                  allowFullScreen
+                />
+              </div>
             </div>
           )}
           
