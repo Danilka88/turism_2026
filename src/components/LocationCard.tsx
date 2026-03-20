@@ -187,7 +187,7 @@ function VirtualVisit({ location }: { location: Location }) {
         </div>
         <button className="zelda-btn bg-zelda-purple text-white py-4 text-xl flex items-center justify-center gap-3">
           <Users className="w-6 h-6" /> 
-          Примерить на меня (ИИ Коллаж)
+          Позвонить для онлайн осмотра
         </button>
       </div>
     </div>
