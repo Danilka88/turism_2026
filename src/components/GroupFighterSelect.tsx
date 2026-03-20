@@ -35,7 +35,7 @@ export function GroupFighterSelect({ onComplete }: GroupFighterSelectProps) {
           <p className="font-bold text-gray-500 mt-1">Кто едет с тобой?</p>
         </div>
         
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3">
           {FIGHTERS.map((fighter) => {
             const isSelected = selected.includes(fighter.id);
             return (
@@ -44,13 +44,13 @@ export function GroupFighterSelect({ onComplete }: GroupFighterSelectProps) {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => toggleFighter(fighter.id)}
-                className={`fighter-card p-4 flex flex-col items-center justify-center gap-2 h-32 relative ${isSelected ? 'selected' : ''}`}
+                className={`fighter-card p-3 flex flex-col items-center justify-center gap-1 h-24 relative ${isSelected ? 'selected' : ''}`}
               >
-                <span className="text-4xl">{fighter.icon}</span>
-                <span className="font-bold text-center text-sm leading-tight">{fighter.name}</span>
+                <span className="text-3xl">{fighter.icon}</span>
+                <span className="font-bold text-center text-xs leading-tight">{fighter.name}</span>
                 {isSelected && (
-                  <div className="absolute -top-2 -right-2 bg-zelda-green text-white rounded-full p-1 border-2 border-zelda-dark">
-                    <Check className="w-4 h-4" strokeWidth={4} />
+                  <div className="absolute -top-1 -right-1 bg-zelda-green text-white rounded-full p-0.5 border border-zelda-dark">
+                    <Check className="w-3 h-3" strokeWidth={4} />
                   </div>
                 )}
               </motion.div>
@@ -59,13 +59,13 @@ export function GroupFighterSelect({ onComplete }: GroupFighterSelectProps) {
           <motion.div 
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="fighter-card p-4 flex flex-col items-center justify-center gap-2 h-32 border-dashed bg-white filter-none"
+            className="fighter-card p-3 flex flex-col items-center justify-center gap-1 h-24 border-dashed bg-white filter-none"
             onClick={handleInvite}
           >
-            <div className="w-10 h-10 rounded-full bg-zelda-blue text-white flex items-center justify-center border-2 border-zelda-dark">
-              <Plus className="w-6 h-6" strokeWidth={3} />
+            <div className="w-8 h-8 rounded-full bg-zelda-blue text-white flex items-center justify-center border-2 border-zelda-dark">
+              <Plus className="w-5 h-5" strokeWidth={3} />
             </div>
-            <span className="font-bold text-center text-sm text-zelda-blue">Пригласить<br/>участника</span>
+            <span className="font-bold text-center text-xs text-zelda-blue">Ещё</span>
           </motion.div>
         </div>
 

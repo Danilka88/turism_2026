@@ -13,13 +13,20 @@ export const ONBOARDING_CARDS: OnboardingCard[] = [
 
 export const FIGHTERS: Fighter[] = [
   { id: 'me', name: 'Я', icon: '👤', color: 'bg-zelda-blue' },
-  { id: 'partner', name: 'Партнер', icon: '❤️', color: 'bg-red-500' },
+  { id: 'partner', name: 'Партнёр', icon: '❤️', color: 'bg-red-500' },
+  { id: 'mom', name: 'Мама', icon: '👩', color: 'bg-pink-400' },
+  { id: 'dad', name: 'Папа', icon: '👨', color: 'bg-blue-400' },
+  { id: 'grandma', name: 'Бабушка', icon: '👵', color: 'bg-zelda-purple' },
+  { id: 'grandpa', name: 'Дедушка', icon: '👴', color: 'bg-amber-600' },
+  { id: 'daughter', name: 'Дочь', icon: '👧', color: 'bg-rose-400' },
+  { id: 'son', name: 'Сын', icon: '👦', color: 'bg-sky-400' },
+  { id: 'kids', name: 'Дети', icon: '🧒', color: 'bg-green-400' },
   { id: 'friend', name: 'Друг', icon: '🤘', color: 'bg-zelda-orange' },
-  { id: 'mom', name: 'Мама-пенсионерка', icon: '👵', color: 'bg-zelda-purple' },
-  { id: 'kids', name: 'Дети 7 и 10 лет', icon: '🧒', color: 'bg-zelda-green' },
-  { id: 'dog', name: 'Собака', icon: '🐕', color: 'bg-zelda-gold' },
+  { id: 'friends', name: 'Друзья', icon: '👫', color: 'bg-teal-400' },
   { id: 'colleagues', name: 'Коллеги', icon: '💼', color: 'bg-gray-500' },
+  { id: 'dog', name: 'Собака', icon: '🐕', color: 'bg-zelda-gold' },
   { id: 'cat', name: 'Кот', icon: '🐈', color: 'bg-yellow-600' },
+  { id: 'pet', name: 'Другой питомец', icon: '🐾', color: 'bg-lime-400' },
 ];
 
 export const LOCATIONS: Location[] = [
