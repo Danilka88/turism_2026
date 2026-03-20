@@ -6,6 +6,7 @@ import type { Location, SelectedExtras } from '../types';
 interface FinalRouteProps {
   locations: Location[];
   selectedExtras: SelectedExtras;
+  onBook?: () => void;
 }
 
 interface FoodModalProps {
@@ -156,7 +157,7 @@ function ActivitiesModal({ location, selectedActivities, onToggleActivity, onClo
   );
 }
 
-export function FinalRoute({ locations, selectedExtras }: FinalRouteProps) {
+export function FinalRoute({ locations, selectedExtras, onBook }: FinalRouteProps) {
   const [localExtras, setLocalExtras] = useState<SelectedExtras>(selectedExtras);
   const [activeModal, setActiveModal] = useState<{ type: 'food' | 'activities'; locationId: number } | null>(null);
 
@@ -324,7 +325,10 @@ export function FinalRoute({ locations, selectedExtras }: FinalRouteProps) {
         className="fixed bottom-0 left-0 right-0 p-3 sm:p-4 z-50 flex justify-center"
       >
         <div className="w-full max-w-4xl mx-2 sm:mx-4 flex gap-2 sm:gap-4 p-3 sm:p-4 rounded-2xl bg-gradient-to-br from-purple-900/95 to-indigo-900/95 border border-white/20 shadow-2xl backdrop-blur-xl">
-          <button className="flex-1 py-3 sm:py-4 px-4 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white text-base sm:text-lg font-bold rounded-xl border border-white/30 shadow-lg transition-all flex items-center justify-center gap-2">
+          <button 
+            onClick={onBook}
+            className="flex-1 py-3 sm:py-4 px-4 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white text-base sm:text-lg font-bold rounded-xl border border-white/30 shadow-lg transition-all flex items-center justify-center gap-2"
+          >
             <CalendarDays className="w-5 h-5 sm:w-6 sm:h-6" /> 
             Забронировать
           </button>

@@ -11,6 +11,7 @@ import {
   FinalRoute,
   BusinessDashboard,
   WineScanner,
+  BookingForm,
 } from './components';
 import type { AppState, SelectedExtras, Location } from './types';
 
@@ -20,6 +21,8 @@ function App() {
   const [likedInterests, setLikedInterests] = useState<number[]>([]);
   const [selectedExtras, setSelectedExtras] = useState<SelectedExtras>({});
   const [acceptedLocations, setAcceptedLocations] = useState<Location[]>([]);
+  const [showBooking, setShowBooking] = useState(false);
+  const [bookingLocation, setBookingLocation] = useState<string>('');
 
   const handleRouteSelectionComplete = (accepted: Location[], extras: SelectedExtras) => {
     setAcceptedLocations(accepted);
@@ -31,6 +34,14 @@ function App() {
     setAcceptedLocations(locations);
     setSelectedExtras({});
     setState('final_route');
+  };
+
+  const openBooking = () => {
+    const locationName = acceptedLocations.length > 0 
+      ? acceptedLocations.map(l => l.title.split('"')[1] || l.title.split(' ')[0]).join(', ')
+      : 'ваш маршрут';
+    setBookingLocation(locationName);
+    setShowBooking(true);
   };
 
   return (
@@ -88,10 +99,17 @@ function App() {
             <FinalRoute 
               locations={acceptedLocations} 
               selectedExtras={selectedExtras}
+              onBook={openBooking}
             />
           )}
         </AnimatePresence>
       )}
+
+      <BookingForm 
+        isOpen={showBooking} 
+        onClose={() => setShowBooking(false)}
+        locationTitle={bookingLocation}
+      />
     </div>
   );
 }
