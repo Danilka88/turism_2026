@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { AnimatePresence } from 'motion/react';
+import { AnimatePresence, motion } from 'motion/react';
 import { Briefcase } from 'lucide-react';
 import { LOCATIONS } from './data';
 import {
@@ -11,15 +11,17 @@ import {
   FinalRoute,
   BusinessDashboard,
 } from './components';
-import type { AppState, SelectedExtras } from './types';
+import type { AppState, SelectedExtras, Location } from './types';
 
 function App() {
   const [state, setState] = useState<AppState>('landing');
   const [isBusinessMode, setIsBusinessMode] = useState(false);
   const [likedInterests, setLikedInterests] = useState<number[]>([]);
   const [selectedExtras, setSelectedExtras] = useState<SelectedExtras>({});
+  const [acceptedLocations, setAcceptedLocations] = useState<Location[]>([]);
 
-  const handleRouteSelectionComplete = (extras: SelectedExtras) => {
+  const handleRouteSelectionComplete = (accepted: Location[], extras: SelectedExtras) => {
+    setAcceptedLocations(accepted);
     setSelectedExtras(extras);
     setState('final_route');
   };
@@ -27,15 +29,17 @@ function App() {
   return (
     <div className="min-h-screen relative">
       <div className="fixed top-4 right-4 z-50">
-        <button 
+        <motion.button 
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
           onClick={() => setIsBusinessMode(!isBusinessMode)}
-          className="zelda-btn bg-white px-4 py-2 text-sm flex items-center gap-2 shadow-lg"
+          className="glass-btn px-4 py-2.5 text-sm flex items-center gap-2 backdrop-blur-xl"
         >
           <Briefcase className="w-4 h-4" />
-          <span className="hidden sm:inline">
-            {isBusinessMode ? 'Выйти из Бизнес-режима' : 'Я — владелец бизнеса'}
+          <span className="hidden sm:inline text-white font-bold">
+            {isBusinessMode ? 'Выйти' : 'Я — владелец'}
           </span>
-        </button>
+        </motion.button>
       </div>
 
       {isBusinessMode ? (
@@ -66,7 +70,7 @@ function App() {
           )}
           {state === 'final_route' && (
             <FinalRoute 
-              locations={LOCATIONS} 
+              locations={acceptedLocations} 
               selectedExtras={selectedExtras}
             />
           )}

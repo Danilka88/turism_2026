@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { AnimatePresence } from 'motion/react';
+import { AnimatePresence, motion } from 'motion/react';
 import { LocationCard } from './LocationCard';
 import { Check } from 'lucide-react';
 import type { Location, SelectedExtras } from '../types';
@@ -9,11 +9,18 @@ interface RouteTinderCardsProps {
   likedInterests: number[];
   selectedExtras: SelectedExtras;
   onUpdateExtras: (extras: SelectedExtras) => void;
-  onFinish: (extras: SelectedExtras) => void;
+  onFinish: (accepted: Location[], extras: SelectedExtras) => void;
 }
 
 type Season = 'Весна' | 'Лето' | 'Осень' | 'Зима';
 const SEASONS: Season[] = ['Весна', 'Лето', 'Осень', 'Зима'];
+
+const SEASON_GRADIENTS: Record<Season, string> = {
+  'Весна': 'from-pink-400 to-purple-400',
+  'Лето': 'from-yellow-400 to-orange-400',
+  'Осень': 'from-orange-400 to-red-400',
+  'Зима': 'from-blue-400 to-cyan-400',
+};
 
 export function RouteTinderCards({ locations, likedInterests, selectedExtras, onUpdateExtras, onFinish }: RouteTinderCardsProps) {
   const [deck, setDeck] = useState<Location[]>(locations);
@@ -32,7 +39,7 @@ export function RouteTinderCards({ locations, likedInterests, selectedExtras, on
   };
 
   const handleFinish = () => {
-    onFinish(selectedExtras);
+    onFinish(accepted, selectedExtras);
   };
 
   const isSelectionComplete = deck.length === 0 || accepted.length >= MAX_SELECTION;
@@ -40,18 +47,27 @@ export function RouteTinderCards({ locations, likedInterests, selectedExtras, on
   if (isSelectionComplete) {
     return (
       <div className="flex flex-col items-center justify-center h-full p-6 text-center">
-        <div className="diorama-card p-8 max-w-md w-full flex flex-col items-center gap-6">
-          <div className="w-24 h-24 bg-zelda-green rounded-full flex items-center justify-center border-4 border-zelda-dark">
+        <motion.div 
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          className="w-full max-w-md rounded-3xl bg-gradient-to-br from-purple-900/90 to-indigo-900/90 p-8 flex flex-col items-center gap-6 border border-white/20 shadow-2xl backdrop-blur-xl"
+        >
+          <motion.div 
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ type: "spring", delay: 0.2 }}
+            className="w-24 h-24 rounded-full bg-gradient-to-br from-green-400 to-emerald-500 flex items-center justify-center shadow-lg border-4 border-white/30"
+          >
             <Check className="w-12 h-12 text-white" strokeWidth={4} />
-          </div>
-          <h2 className="text-2xl font-black">Места выбраны!</h2>
-          <p className="font-bold text-gray-600">
+          </motion.div>
+          <h2 className="text-3xl font-black text-white drop-shadow-lg">Места выбраны!</h2>
+          <p className="font-bold text-white/90 text-lg">
             Мы собрали {accepted.length} идеальных локаций для вашей группы.
           </p>
-          <button onClick={handleFinish} className="zelda-btn w-full py-4 text-xl">
-            Сформировать финальный маршрут
+          <button onClick={handleFinish} className="w-full py-4 px-8 bg-gradient-to-r from-purple-500 via-pink-500 to-rose-500 hover:from-purple-600 hover:via-pink-600 hover:to-rose-600 text-white text-xl font-bold rounded-2xl border-2 border-white/30 shadow-lg transition-all">
+            🚀 Сформировать финальный маршрут
           </button>
-        </div>
+        </motion.div>
       </div>
     );
   }
@@ -65,10 +81,10 @@ export function RouteTinderCards({ locations, likedInterests, selectedExtras, on
           <button 
             key={s} 
             onClick={() => setSeason(s)}
-            className={`px-6 py-2 rounded-full border-[3px] border-zelda-dark font-black text-sm transition-colors whitespace-nowrap ${
+            className={`px-4 py-2 rounded-full border border-white/30 font-bold text-sm transition-all whitespace-nowrap backdrop-blur-md ${
               season === s 
-                ? 'bg-zelda-gold shadow-[2px_2px_0px_#3a1952]' 
-                : 'bg-white'
+                ? `bg-gradient-to-r ${SEASON_GRADIENTS[s]} text-white border-transparent shadow-lg` 
+                : 'glass-chip'
             }`}
           >
             {s}

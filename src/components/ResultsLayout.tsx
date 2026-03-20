@@ -20,7 +20,7 @@ L.Marker.prototype.options.icon = DefaultIcon;
 interface ResultsLayoutProps {
   locations: Location[];
   likedInterests: number[];
-  onFinish: (extras: SelectedExtras) => void;
+  onFinish: (accepted: Location[], extras: SelectedExtras) => void;
 }
 
 export function ResultsLayout({ locations, likedInterests, onFinish }: ResultsLayoutProps) {
@@ -33,9 +33,9 @@ export function ResultsLayout({ locations, likedInterests, onFinish }: ResultsLa
 
   if (!isMounted) {
     return (
-      <div className="min-h-screen flex flex-col lg:flex-row bg-gray-100">
-        <div className="lg:w-1/2 h-[40vh] lg:h-screen bg-gray-200 flex items-center justify-center">
-          <span className="text-gray-500">Загрузка карты...</span>
+      <div className="min-h-screen flex flex-col lg:flex-row bg-gradient-to-br from-purple-950 to-indigo-950">
+        <div className="lg:w-1/2 h-[40vh] lg:h-screen bg-black/30 flex items-center justify-center">
+          <span className="text-white/70 font-bold">Загрузка карты...</span>
         </div>
         <div className="lg:w-1/2 p-4 lg:p-8 h-[60vh] lg:h-screen overflow-y-auto">
           <RouteTinderCards 
@@ -51,8 +51,8 @@ export function ResultsLayout({ locations, likedInterests, onFinish }: ResultsLa
   }
 
   return (
-    <div className="min-h-screen flex flex-col lg:flex-row bg-gray-100">
-      <div className="lg:w-1/2 h-[40vh] lg:h-screen sticky top-0 z-10 border-b-4 lg:border-b-0 lg:border-r-4 border-zelda-dark">
+    <div className="min-h-screen flex flex-col lg:flex-row bg-gradient-to-br from-purple-950 to-indigo-950">
+      <div className="lg:w-1/2 h-[40vh] lg:h-screen sticky top-0 z-10">
         <MapContainer
           center={[44.7, 38.5]}
           zoom={7}
@@ -65,7 +65,7 @@ export function ResultsLayout({ locations, likedInterests, onFinish }: ResultsLa
           />
           {locations.map((loc) => (
             <Marker key={loc.id} position={[loc.lat, loc.lng]}>
-              <Popup>{loc.title}</Popup>
+              <Popup className="dark-popup">{loc.title}</Popup>
             </Marker>
           ))}
         </MapContainer>

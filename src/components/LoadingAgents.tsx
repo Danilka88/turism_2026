@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'motion/react';
-import { Search, Compass } from 'lucide-react';
-import { GoogleGenAI } from '@google/genai';
+import { Search, Compass, Sparkles } from 'lucide-react';
 
 interface LoadingAgentsProps {
   onComplete: () => void;
@@ -23,19 +22,26 @@ export function LoadingAgents({ onComplete }: LoadingAgentsProps) {
     
     if (apiKey && apiKey !== 'YOUR_GEMINI_API_KEY') {
       try {
-        const ai = new GoogleGenAI({ apiKey });
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: 'Проанализируй профиль туриста: любит вино, горы, едет с семьей. Выдай 3 ключевых интереса.' }] }]
+          })
+        });
+        if (!response.ok) throw new Error('API Error');
         
         setStatus('Агент-Популярный и Агент-Редкий анализируют профиль...');
-        await ai.models.generateContent({
-          model: 'gemini-3-flash-preview',
-          contents: 'Проанализируй профиль туриста: любит вино, горы, едет с семьей. Выдай 3 ключевых интереса.',
+        
+        await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: 'Составь маршрут по Краснодарскому краю на 3 дня для семьи.' }] }]
+          })
         });
         
         setStatus('Агент-Семья и Агент-Гастро составляют маршрут...');
-        await ai.models.generateContent({
-          model: 'gemini-3-flash-preview',
-          contents: 'Составь маршрут по Краснодарскому краю на 3 дня для семьи.',
-        });
       } catch (e) {
         console.error('AI Analysis failed:', e);
       }
@@ -68,39 +74,68 @@ export function LoadingAgents({ onComplete }: LoadingAgentsProps) {
       exit={{ opacity: 0 }} 
       className="flex flex-col items-center justify-center min-h-screen p-6 text-center"
     >
-      <div className="diorama-card p-8 max-w-md w-full flex flex-col items-center gap-8">
+      <motion.div 
+        initial={{ scale: 0.9, y: 20 }}
+        animate={{ scale: 1, y: 0 }}
+        className="glass-hero p-8 max-w-md w-full flex flex-col items-center gap-8"
+      >
         <div className="relative">
-          <Search className="w-20 h-20 text-zelda-blue animate-bounce" />
-          <div className="absolute -bottom-2 -right-2 bg-zelda-yellow rounded-full p-1 border-2 border-zelda-dark animate-spin">
-            <Compass className="w-6 h-6 text-zelda-dark" />
+          <motion.div
+            animate={{ rotate: 360 }}
+            transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+            className="absolute inset-0 bg-gradient-to-r from-glass-cyan via-glass-accent to-glass-cyan rounded-full blur-xl opacity-40"
+          />
+          <div className="relative">
+            <Search className="w-20 h-20 text-white" />
+            <motion.div 
+              animate={{ rotate: -360 }}
+              transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+              className="absolute -bottom-2 -right-2 bg-glass-mint/50 backdrop-blur-md rounded-full p-2 border border-white/30"
+            >
+              <Compass className="w-6 h-6 text-white" />
+            </motion.div>
           </div>
         </div>
-        <h2 className="text-2xl font-black">{status}</h2>
         
-        <div className="flex justify-center gap-4">
+        <motion.h2 
+          key={status}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-xl font-bold text-white"
+        >
+          {status}
+        </motion.h2>
+        
+        <div className="flex justify-center gap-6">
           {AGENTS.map((agent, i) => (
             <motion.div 
               key={agent}
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: i * 0.2, repeat: Infinity, repeatType: 'reverse', duration: 0.5 }}
-              className="flex flex-col items-center gap-2"
+              initial={{ y: 20, opacity: 0, scale: 0.5 }}
+              animate={{ y: 0, opacity: 1, scale: 1 }}
+              transition={{ delay: i * 0.15, type: "spring" }}
+              className="flex flex-col items-center gap-3"
             >
-              <div className="w-14 h-14 rounded-full bg-zelda-gold border-[3px] border-zelda-dark flex items-center justify-center font-black text-sm shadow-[2px_2px_0px_#3a1952]">
-                ИИ
-              </div>
-              <span className="text-[10px] font-bold uppercase">{agent}</span>
+              <motion.div 
+                animate={{ y: [0, -8, 0] }}
+                transition={{ delay: i * 0.2, duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+                className="w-14 h-14 rounded-2xl glass-card flex items-center justify-center"
+              >
+                <Sparkles className="w-6 h-6 text-white" />
+              </motion.div>
+              <span className="text-xs font-bold uppercase text-white/80">{agent}</span>
             </motion.div>
           ))}
         </div>
         
-        <div className="w-full h-6 bg-gray-200 rounded-full border-[3px] border-zelda-dark overflow-hidden shadow-[inset_0px_3px_0px_rgba(0,0,0,0.1)]">
+        <div className="w-full h-2 glass-card-solid rounded-full overflow-hidden">
           <motion.div 
             animate={{ width: `${progress}%` }} 
-            className="h-full bg-zelda-green" 
+            className="h-full bg-gradient-to-r from-glass-cyan to-glass-accent rounded-full"
           />
         </div>
-      </div>
+        
+        <p className="text-sm text-white/60 font-medium">Подбираем лучшие места для вас...</p>
+      </motion.div>
     </motion.div>
   );
 }

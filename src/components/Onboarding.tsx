@@ -15,7 +15,7 @@ const INTEREST_RESULTS: Record<number, string[]> = {
   5: ['экстрима', 'джиппинга', 'приключений'],
   6: ['пляжа', 'моря', 'спокойствия'],
   7: ['казачьей культуры', 'истории Кубани', 'станиц'],
-  8: ['гастрономии', 'высокой кухни', ' lokальной еды'],
+  8: ['гастрономии', 'высокой кухни', 'локальной еды'],
 };
 
 export function Onboarding({ onComplete }: OnboardingProps) {
@@ -47,14 +47,16 @@ export function Onboarding({ onComplete }: OnboardingProps) {
       exit={{ opacity: 0, x: -100 }} 
       className="flex flex-col items-center justify-center min-h-screen p-6"
     >
-      <div className="w-full max-w-sm mb-6 flex justify-between items-center font-bold text-zelda-dark">
-        <span className="bg-white px-4 py-1 rounded-full border-2 border-zelda-dark shadow-[2px_2px_0px_#3a1952]">
+      <div className="w-full max-w-sm mb-6 flex justify-between items-center font-bold text-white">
+        <span className="glass-chip px-4 py-1">
           Вопрос {currentIndex + 1} / {ONBOARDING_CARDS.length}
         </span>
-        <div className="h-4 w-32 bg-white/50 rounded-full overflow-hidden border-2 border-zelda-dark shadow-[2px_2px_0px_#3a1952]">
-          <div 
-            className="h-full bg-zelda-gold transition-all duration-300" 
-            style={{ width: `${((currentIndex + 1) / ONBOARDING_CARDS.length) * 100}%` }} 
+        <div className="h-3 w-32 glass-card rounded-full overflow-hidden">
+          <motion.div 
+            className="h-full bg-gradient-to-r from-glass-cyan to-glass-accent"
+            initial={{ width: 0 }}
+            animate={{ width: `${((currentIndex + 1) / ONBOARDING_CARDS.length) * 100}%` }}
+            transition={{ duration: 0.4, ease: "easeOut" }}
           />
         </div>
       </div>
@@ -72,27 +74,27 @@ export function Onboarding({ onComplete }: OnboardingProps) {
             if (swipe < -10000) handleSwipe(false);
             else if (swipe > 10000) handleSwipe(true);
           }}
-          className="diorama-card w-full max-w-sm overflow-hidden flex flex-col cursor-grab active:cursor-grabbing"
+          className="w-full max-w-md rounded-3xl overflow-hidden flex flex-col cursor-grab active:cursor-grabbing bg-gradient-to-br from-purple-900/95 to-indigo-900/95 border border-white/20 shadow-2xl backdrop-blur-xl"
         >
           <div className="relative h-64">
-            <img src={card.img} alt="card" className="w-full h-full object-cover border-b-[3px] border-zelda-dark" />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-6">
-              <h2 className="text-2xl font-black text-white drop-shadow-md leading-tight">{card.text}</h2>
+            <img src={card.img} alt="card" className="w-full h-full object-cover" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent flex items-end p-6">
+              <h2 className="text-3xl font-black text-white drop-shadow-xl leading-tight">{card.text}</h2>
             </div>
           </div>
-          <div className="p-6 flex flex-col gap-4 bg-white">
+          <div className="p-6 flex flex-col gap-4">
             <textarea 
               value={comment}
               onChange={(e) => setComment(e.target.value)}
               placeholder="Своё мнение (опционально)..." 
-              className="w-full p-3 rounded-xl border-2 border-zelda-dark/20 focus:border-zelda-green outline-none resize-none h-20 bg-gray-50 font-medium"
+              className="glass-input w-full rounded-xl h-24 resize-none font-medium text-base"
             />
             <div className="flex justify-between gap-4 mt-2">
-              <button onClick={() => handleSwipe(false)} className="flex-1 zelda-btn bg-white py-4 flex justify-center items-center text-red-500">
-                <X className="w-8 h-8" strokeWidth={3} />
+              <button onClick={() => handleSwipe(false)} className="glass-btn flex-1 py-5 flex justify-center items-center text-red-400 bg-red-500/30 text-xl font-bold">
+                <X className="w-10 h-10" strokeWidth={3} />
               </button>
-              <button onClick={() => handleSwipe(true)} className="flex-1 zelda-btn bg-zelda-green text-white py-4 flex justify-center items-center">
-                <Heart className="w-8 h-8 fill-current" />
+              <button onClick={() => handleSwipe(true)} className="glass-btn bg-gradient-to-r from-pink-500 to-rose-500 flex-1 py-5 flex justify-center items-center text-xl font-bold">
+                <Heart className="w-10 h-10 fill-current" />
               </button>
             </div>
           </div>
