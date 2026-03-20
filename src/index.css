@@ -61,3 +61,7 @@
     border-width: 4px;
   }
 }
+
+.leaflet-control-attribution {
+  display: none !important;
+}
