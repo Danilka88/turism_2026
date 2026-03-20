@@ -1,0 +1,172 @@
+import { useState } from 'react';
+import { motion } from 'motion/react';
+import { X, Heart, Maximize, Play, Users, Info } from 'lucide-react';
+import type { Location } from '../types';
+
+interface LocationCardProps {
+  location: Location;
+  onAccept: () => void;
+  onReject: () => void;
+}
+
+function DetailsModal({ location, onClose }: { location: Location; onClose: () => void }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 z-50 bg-black/70 p-4 flex items-center justify-center backdrop-blur-sm"
+      onClick={onClose}
+    >
+      <motion.div
+        initial={{ scale: 0.9, y: 20 }}
+        animate={{ scale: 1, y: 0 }}
+        exit={{ scale: 0.9, y: 20 }}
+        className="diorama-card w-full max-w-2xl max-h-[90vh] overflow-y-auto"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="relative">
+          <img 
+            src={location.img} 
+            alt={location.title} 
+            className="w-full h-48 sm:h-64 object-cover rounded-t-3xl" 
+          />
+          <button 
+            onClick={onClose}
+            className="absolute top-4 right-4 bg-white rounded-full p-2 border-[3px] border-zelda-dark hover:bg-red-400 hover:text-white transition-colors"
+          >
+            <X className="w-6 h-6" />
+          </button>
+        </div>
+        
+        <div className="p-6 flex flex-col gap-4">
+          <div className="flex items-start justify-between gap-4">
+            <h2 className="text-2xl font-black">{location.title}</h2>
+            <span className="bg-zelda-green text-white font-black px-3 py-1 rounded-full border-[3px] border-zelda-dark shrink-0">
+              {location.match}% совпадение
+            </span>
+          </div>
+          
+          <p className="text-gray-700 leading-relaxed text-lg">{location.desc}</p>
+          
+          <div className="bg-zelda-yellow/30 p-4 rounded-xl border-[3px] border-zelda-dark">
+            <p className="font-bold text-lg">✨ {location.matchText}</p>
+          </div>
+          
+          {location.videos.length > 0 && (
+            <div className="aspect-video bg-gray-800 rounded-xl border-[3px] border-zelda-dark overflow-hidden">
+              <iframe 
+                width="100%" 
+                height="100%" 
+                src={location.videos[0]} 
+                title="YouTube video player" 
+                frameBorder="0" 
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                allowFullScreen
+              />
+            </div>
+          )}
+          
+          <button onClick={onClose} className="zelda-btn py-3 text-lg mt-2">
+            Закрыть
+          </button>
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+}
+
+function VirtualVisit({ location }: { location: Location }) {
+  const [open, setOpen] = useState(false);
+  
+  if (!open) return (
+    <button onClick={() => setOpen(true)} className="zelda-btn bg-zelda-blue text-white py-3 px-4 flex items-center gap-2 w-full justify-center">
+      <Maximize className="w-5 h-5" /> 
+      Виртуальный визит
+    </button>
+  );
+
+  return (
+    <div className="fixed inset-0 z-50 bg-zelda-dark/95 p-4 flex flex-col items-center justify-center backdrop-blur-sm">
+      <div className="diorama-card w-full max-w-3xl p-6 flex flex-col gap-6">
+        <div className="flex justify-between items-center">
+          <h3 className="font-black text-2xl">Виртуальный визит: {location.title}</h3>
+          <button onClick={() => setOpen(false)} className="bg-gray-200 rounded-full p-2 border-2 border-zelda-dark hover:bg-red-400 transition-colors">
+            <X className="w-6 h-6" />
+          </button>
+        </div>
+        <div className="aspect-video bg-gray-800 rounded-2xl overflow-hidden border-[3px] border-zelda-dark relative flex items-center justify-center shadow-inner">
+          <img src={location.img} className="w-full h-full object-cover opacity-60" alt="360" />
+          <div className="absolute font-black text-white text-3xl flex flex-col items-center gap-4 drop-shadow-lg">
+            <div className="bg-zelda-blue/80 p-4 rounded-full border-2 border-white backdrop-blur-md">
+              <Play className="w-12 h-12 fill-current" />
+            </div>
+            360° Панорама
+          </div>
+        </div>
+        <button className="zelda-btn bg-zelda-purple text-white py-4 text-xl flex items-center justify-center gap-3">
+          <Users className="w-6 h-6" /> 
+          Примерить на меня (ИИ Коллаж)
+        </button>
+      </div>
+    </div>
+  );
+}
+
+export function LocationCard({ location, onAccept, onReject }: LocationCardProps) {
+  const [showDetails, setShowDetails] = useState(false);
+  
+  return (
+    <>
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, x: -100 }}
+        className="diorama-card flex flex-col flex-1 overflow-hidden"
+        style={{ maxHeight: 'calc(100vh - 200px)' }}
+      >
+        <div className="relative h-48 sm:h-64 shrink-0">
+          <img src={location.img} alt={location.title} className="w-full h-full object-cover border-b-[3px] border-zelda-dark" />
+          <div className="absolute top-4 right-4 bg-zelda-green text-white font-black px-4 py-2 rounded-full border-[3px] border-zelda-dark shadow-[4px_4px_0px_#3a1952] text-lg">
+            {location.match}% совпадение
+          </div>
+          <div className="absolute bottom-4 left-4 bg-white/90 backdrop-blur-sm px-4 py-2 rounded-xl border-2 border-zelda-dark font-bold text-sm shadow-lg">
+            {location.matchText}
+          </div>
+        </div>
+        
+        <div className="p-4 sm:p-6 flex flex-col gap-3 sm:gap-4 overflow-y-auto flex-1 min-h-0">
+          <h3 className="text-xl sm:text-2xl font-black">{location.title}</h3>
+          
+          <button 
+            onClick={() => setShowDetails(true)}
+            className="zelda-btn bg-zelda-yellow py-3 px-4 flex items-center gap-2 w-full justify-center"
+          >
+            <Info className="w-5 h-5" /> 
+            Подробнее
+          </button>
+
+          <VirtualVisit location={location} />
+
+          <div className="flex gap-4 mt-auto pt-4">
+            <button onClick={onReject} className="flex-1 zelda-btn bg-white py-3 sm:py-4 flex items-center justify-center gap-2 text-red-500">
+              <X className="w-5 h-5 sm:w-6 sm:h-6" strokeWidth={3} /> 
+              Заменить
+            </button>
+            <button onClick={onAccept} className="flex-1 zelda-btn bg-zelda-green text-white py-3 sm:py-4 flex items-center justify-center gap-2">
+              <Heart className="w-5 h-5 sm:w-6 sm:h-6 fill-current" /> 
+              Принять
+            </button>
+          </div>
+        </div>
+      </motion.div>
+      
+      {showDetails && (
+        <DetailsModal 
+          location={location} 
+          onClose={() => setShowDetails(false)} 
+        />
+      )}
+    </>
+  );
+}

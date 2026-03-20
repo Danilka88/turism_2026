@@ -1,0 +1,63 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;800;900&display=swap');
+
+@layer base {
+  body {
+    background-color: #e8f4f8;
+    font-family: 'Nunito', system-ui, sans-serif;
+    color: #3a1952;
+    background-image: radial-gradient(#b59cbd 1px, transparent 1px);
+    background-size: 24px 24px;
+    background-attachment: fixed;
+  }
+}
+
+@layer components {
+  .diorama-card {
+    @apply bg-white rounded-3xl border-4 border-zelda-dark shadow-[8px_8px_0px_#3a1952] transition-transform transition-shadow;
+  }
+
+  .zelda-btn {
+    @apply bg-zelda-gold text-zelda-dark font-black border-4 border-zelda-dark rounded-2xl shadow-[4px_4px_0px_#3a1952] transition-all cursor-pointer;
+  }
+
+  .zelda-btn:active {
+    transform: translate(4px, 4px);
+    box-shadow: 0px 0px 0px #3a1952;
+  }
+
+  .fighter-card {
+    @apply bg-white rounded-2xl border-4 border-zelda-dark shadow-[4px_4px_0px_#3a1952] transition-all cursor-pointer filter grayscale;
+  }
+
+  .fighter-card.selected {
+    @apply grayscale-0 bg-zelda-yellow scale-105 shadow-[6px_6px_0px_#3a1952];
+  }
+
+  .glass-panel {
+    @apply bg-white/85 backdrop-blur-md;
+  }
+
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
+@layer utilities {
+  .border-b-\[3px\] {
+    border-bottom-width: 3px;
+  }
+  .border-\[3px\] {
+    border-width: 3px;
+  }
+  .border-\[4px\] {
+    border-width: 4px;
+  }
+}
