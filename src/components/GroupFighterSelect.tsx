@@ -25,10 +25,8 @@ const CITIES = [
   { id: 'tuapse', name: 'Туапсе', icon: '🛤️' },
   { id: 'armavir', name: 'Армавир', icon: '🏛️' },
   { id: 'kropotkin', name: 'Кропоткин', icon: '🌾' },
-  { id: 'slavyansk', name: 'Славянск-на-Кубани', icon: '🏘️' },
+  { id: 'slavyansk', name: 'Славянск', icon: '🏘️' },
   { id: 'timahevsk', name: 'Тимашёвск', icon: '🌻' },
-  { id: 'crimea', name: 'Крым', icon: '🏝️' },
-  { id: 'abkhazia', name: 'Абхазия', icon: '🏔️' },
 ];
 
 const STEPS = [
@@ -203,23 +201,25 @@ export function GroupFighterSelect({ onComplete }: GroupFighterSelectProps) {
               >
                 <p className="font-bold text-gray-500 text-center text-sm">Откуда стартуем?</p>
                 
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+                <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
                   {CITIES.map((city) => {
                     const isSelected = selectedCities.includes(city.id);
                     return (
                       <motion.button
                         key={city.id}
-                        whileTap={{ scale: 0.98 }}
+                        whileTap={{ scale: 0.95 }}
                         onClick={() => toggleCity(city.id)}
-                        className={`p-2.5 rounded-xl border-[2px] font-bold text-xs flex items-center gap-2 transition-all ${
-                          isSelected 
-                            ? 'bg-zelda-blue text-white border-zelda-dark shadow-[3px_3px_0px_#3a1952]' 
-                            : 'bg-white border-zelda-dark/50 hover:border-zelda-dark'
+                        className={`fighter-card p-2 flex flex-col items-center justify-center gap-1 h-16 sm:h-18 relative ${
+                          isSelected ? 'selected' : ''
                         }`}
                       >
-                        <span className="text-base">{city.icon}</span>
-                        <span className="text-left flex-1">{city.name}</span>
-                        {isSelected && <Check className="w-3.5 h-3.5" strokeWidth={4} />}
+                        <span className="text-xl sm:text-2xl">{city.icon}</span>
+                        <span className="font-bold text-center text-[9px] sm:text-[10px] leading-tight">{city.name}</span>
+                        {isSelected && (
+                          <div className="absolute -top-1 -right-1 bg-zelda-green text-white rounded-full p-0.5 border border-zelda-dark">
+                            <Check className="w-2.5 h-2.5" strokeWidth={4} />
+                          </div>
+                        )}
                       </motion.button>
                     );
                   })}
