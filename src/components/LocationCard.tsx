@@ -26,7 +26,7 @@ const LOCATION_INTERESTS: Record<number, number[]> = {
   3: [6, 7],
   4: [2, 6],
   5: [1, 2],
-  6: [2, 6],
+  6: [1, 7],
   7: [4, 7],
   8: [2, 5],
 };
