@@ -56,8 +56,8 @@ function FullHeatMap({ selectedIds, allLocs }: { selectedIds: number[]; allLocs:
     const sw = bounds.getSouthWest();
     const ne = bounds.getNorthEast();
     
-    const latStep = Math.max(0.02, (ne.lat - sw.lat) / 40);
-    const lngStep = Math.max(0.02, (ne.lng - sw.lng) / 40);
+    const latStep = Math.max(0.015, (ne.lat - sw.lat) / 60);
+    const lngStep = Math.max(0.015, (ne.lng - sw.lng) / 60);
     
     const points: Array<{ lat: number; lng: number; dist: number }> = [];
     
@@ -83,37 +83,57 @@ function FullHeatMap({ selectedIds, allLocs }: { selectedIds: number[]; allLocs:
   return (
     <>
       {gridPoints.map((point, i) => {
-        let color = '#ef4444';
-        let opacity = 0.08;
+        let color = '#1e3a8a';
+        let opacity = 0.04;
+        let radius = 12;
         
-        if (point.dist < 15) {
-          color = '#15803d';
+        if (point.dist < 1) {
+          color = '#7f1d1d';
+          opacity = 0.65;
+          radius = 20;
+        } else if (point.dist < 5) {
+          color = '#dc2626';
+          opacity = 0.55;
+          radius = 18;
+        } else if (point.dist < 10) {
+          color = '#f97316';
+          opacity = 0.45;
+          radius = 16;
+        } else if (point.dist < 20) {
+          color = '#facc15';
+          opacity = 0.40;
+          radius = 14;
+        } else if (point.dist < 35) {
+          color = '#84cc16';
           opacity = 0.35;
-        } else if (point.dist < 30) {
-          color = '#16a34a';
-          opacity = 0.30;
+          radius = 13;
         } else if (point.dist < 50) {
           color = '#22c55e';
+          opacity = 0.30;
+          radius = 12;
+        } else if (point.dist < 70) {
+          color = '#06b6d4';
           opacity = 0.25;
-        } else if (point.dist < 80) {
-          color = '#84cc16';
+          radius = 11;
+        } else if (point.dist < 100) {
+          color = '#3b82f6';
           opacity = 0.20;
-        } else if (point.dist < 120) {
-          color = '#eab308';
+          radius = 10;
+        } else if (point.dist < 150) {
+          color = '#6366f1';
           opacity = 0.15;
-        } else if (point.dist < 180) {
-          color = '#f97316';
-          opacity = 0.10;
+          radius = 9;
         } else {
-          color = '#dc2626';
-          opacity = 0.06;
+          color = '#1e3a8a';
+          opacity = 0.08;
+          radius = 8;
         }
         
         return (
           <CircleMarker
             key={`heat-${i}`}
             center={[point.lat, point.lng]}
-            radius={8}
+            radius={radius}
             pathOptions={{
               color: color,
               fillColor: color,
@@ -138,7 +158,7 @@ function SelectedPointGlow({ selectedIds, allLocs }: { selectedIds: number[]; al
   
   if (selectedIds.length === 0) return null;
   
-  const baseRadius = Math.max(20, 50 - zoom * 2);
+  const baseRadius = Math.max(15, 40 - zoom * 1.5);
   
   return (
     <>
@@ -150,11 +170,11 @@ function SelectedPointGlow({ selectedIds, allLocs }: { selectedIds: number[]; al
           <CircleMarker
             key={`glow-${loc.id}`}
             center={[loc.lat, loc.lng]}
-            radius={baseRadius * 5}
+            radius={baseRadius * 6}
             pathOptions={{
-              color: '#16a34a',
-              fillColor: '#16a34a',
-              fillOpacity: 0.12,
+              color: '#7f1d1d',
+              fillColor: '#dc2626',
+              fillOpacity: 0.25,
               weight: 0,
             }}
             interactive={false}
@@ -402,23 +422,26 @@ export function MapExplorer({ onBuildRoute, onBack }: MapExplorerProps) {
         )}
       </AnimatePresence>
 
-      {/* Heat Map Legend */}
+      {/* Heat Map Legend - Rainbow palette */}
       {selectedLocations.length > 0 && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="absolute bottom-24 right-4 z-[900] bg-white/95 backdrop-blur-xl rounded-2xl px-4 py-3 shadow-lg border border-gray-200 hidden md:block"
         >
-          <p className="text-gray-600 text-xs font-bold mb-2">Близость к выбранным:</p>
+          <p className="text-gray-600 text-xs font-bold mb-2">Расстояние:</p>
           <div className="space-y-1.5">
             {[
-              { color: '#15803d', label: '< 15 км' },
-              { color: '#16a34a', label: '15-30 км' },
-              { color: '#22c55e', label: '30-50 км' },
-              { color: '#84cc16', label: '50-80 км' },
-              { color: '#eab308', label: '80-120 км' },
-              { color: '#f97316', label: '120-180 км' },
-              { color: '#dc2626', label: '> 180 км' },
+              { color: '#7f1d1d', label: '< 1 км' },
+              { color: '#dc2626', label: '1-5 км' },
+              { color: '#f97316', label: '5-10 км' },
+              { color: '#facc15', label: '10-20 км' },
+              { color: '#84cc16', label: '20-35 км' },
+              { color: '#22c55e', label: '35-50 км' },
+              { color: '#06b6d4', label: '50-70 км' },
+              { color: '#3b82f6', label: '70-100 км' },
+              { color: '#6366f1', label: '100-150 км' },
+              { color: '#1e3a8a', label: '> 150 км' },
             ].map(item => (
               <div key={item.color} className="flex items-center gap-2">
                 <div
