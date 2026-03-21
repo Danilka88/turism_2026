@@ -16,6 +16,7 @@ import {
   MapExplorer,
 } from './components';
 import type { AppState, SelectedExtras, Location } from './types';
+import type { MapLocation } from './data/mapData';
 
 function App() {
   const [state, setState] = useState<AppState>('landing');
@@ -45,7 +46,26 @@ function App() {
     setState('final_route');
   };
 
-  const handleMapRoute = (locations: Location[]) => {
+  const handleMapRoute = (mapLocations: MapLocation[]) => {
+    const locations: Location[] = mapLocations.map((ml) => ({
+      id: ml.id,
+      title: ml.title,
+      desc: ml.description,
+      extendedDesc: ml.description,
+      match: Math.round(ml.rating * 20),
+      matchText: `Выбрано на карте`,
+      tags: [ml.category],
+      lat: ml.lat,
+      lng: ml.lng,
+      img: '/images/' + ((ml.id % 11) + 1) + '.jpg',
+      videos: [],
+      foodOptions: [
+        { id: 'cafe', name: 'Кафе', icon: '☕', places: ['Популярные места'] },
+      ],
+      activities: [
+        { id: 'explore', name: 'Исследовать', icon: '🔍', description: 'Осмотр места' },
+      ],
+    }));
     setAcceptedLocations(locations);
     setSelectedExtras({});
     setBookingLocation('маршрут по карте');
