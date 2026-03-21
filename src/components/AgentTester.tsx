@@ -194,7 +194,7 @@ export function AgentTester({ onBack }: { onBack: () => void }) {
     const startTime = Date.now();
 
     try {
-      await new Promise(r => setTimeout(r, 4000 + Math.random() * 3000));
+      await new Promise(r => setTimeout(r, 10000 + Math.random() * 5000));
       
       const result = await visionAgent.process({
         text: 'Фанагория белое вино',
