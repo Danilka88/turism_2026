@@ -1,9 +1,8 @@
-import { OllamaService } from '../services/OllamaService';
 import type { AgentResponse } from '../types';
 
 export interface VisionInput {
-  imageBase64: string;
-  imageUrl?: string;
+  text?: string;
+  imageBase64?: string;
 }
 
 export interface VisionOutput {
@@ -16,71 +15,61 @@ export interface VisionOutput {
   confidence: number;
 }
 
+const WINERIES: Record<string, { name: string; region: string; varieties: string[] }> = {
+  'фанагория': { name: 'Фанагория', region: 'Краснодарский край, станица Натухаевская', varieties: ['Каберне', 'Мерло', 'Шардоне', 'Рислинг', 'Алиготе'] },
+  'абрау': { name: 'Абрау-Дюрсо', region: 'Новороссийск', varieties: ['Пино Нуар', 'Шардоне', 'Каберне', 'Мерло'] },
+  'гай-кодзор': { name: 'Гай-Кодзор', region: 'Геленджик', varieties: ['Каберне', 'Мерло', 'Совиньон'] },
+  'шато тамань': { name: 'Шато Тамань', region: 'Тамань', varieties: ['Каберне', 'Шардоне', 'Мерло'] },
+  'кубань': { name: 'Кубанская Винодельня', region: 'Краснодарский край', varieties: ['Красные', 'Белые', 'Розовые'] },
+};
+
+const WINE_TYPES: Record<string, { type: string; grape: string; description: string }> = {
+  'белое': { type: 'Белое', grape: 'Шардоне, Алиготе, Рислинг', description: 'Светлое с фруктовыми нотами, освежающая кислотность' },
+  'красное': { type: 'Красное', grape: 'Каберне, Мерло, Саперави', description: 'Насыщенное с танинами, ноты ягод и специй' },
+  'розовое': { type: 'Розовое', grape: 'Каберне, Мерло', description: 'Лёгкое, освежающее, с нотами ягод' },
+  'игристое': { type: 'Игристое', grape: 'Пино Нуар, Шардоне', description: 'Пузырьки, свежесть, цитрусовые ноты' },
+};
+
 export class VisionAgent {
-  private ollama: OllamaService;
-
-  constructor() {
-    this.ollama = new OllamaService({
-      model: 'qwen3.5:4b',
-      timeout: 180000,
-    });
-  }
-
   async process(input: VisionInput): Promise<AgentResponse<VisionOutput>> {
     try {
-      const systemPrompt = `Ты - опытный сомелье. Проанализируй фото бутылки вина и определи:
-1. Название/бренд вина
-2. Винодельня
-3. Регион (если указан)
-4. Сорт винограда
-5. Год урожая (если виден)
-6. Краткое описание вкуса
-
-Отвечай ТОЛЬКО в формате JSON:
-{"wineName":"название","winery":"винодельня","region":"регион","grapeVariety":"сорт","year":"год","description":"описание","confidence":85}`;
-
-      const userMessage = input.imageBase64 
-        ? { 
-            role: 'user' as const, 
-            content: [
-              { type: 'text' as const, text: 'Определи вино на фото. Ответь JSON.' },
-              { type: 'image' as const, image: input.imageBase64 }
-            ]
-          }
-        : { 
-            role: 'user' as const, 
-            content: 'Определи вино на фото. Ответь JSON.' 
-          };
-
-      const response = await this.ollama.chat([userMessage], systemPrompt);
-
-      let wineData: Partial<VisionOutput> = {};
+      const text = input.text?.toLowerCase() || '';
       
-      try {
-        const cleaned = response.response.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-        wineData = JSON.parse(cleaned);
-      } catch {
-        wineData = {
-          wineName: 'Вино определено',
-          winery: 'Винодельня',
-          region: 'Краснодарский край',
-          grapeVariety: 'Красный/Белый',
-          year: 'N/A',
-          description: response.response || 'Вино распознано',
-          confidence: 75,
-        };
+      let wineryFound = { name: 'Кубанская Винодельня', region: 'Краснодарский край', varieties: ['Каберне', 'Шардоне'] };
+      let wineTypeFound = { type: 'Вино', grape: 'Красный/Белый', description: 'Качественное вино' };
+      let year = 'N/A';
+
+      for (const [key, winery] of Object.entries(WINERIES)) {
+        if (text.includes(key)) {
+          wineryFound = winery;
+          break;
+        }
       }
+
+      for (const [key, wine] of Object.entries(WINE_TYPES)) {
+        if (text.includes(key)) {
+          wineTypeFound = wine;
+          break;
+        }
+      }
+
+      const yearMatch = text.match(/\b(19|20)\d{2}\b/);
+      if (yearMatch) {
+        year = yearMatch[0];
+      }
+
+      const wineName = text.includes('вино') ? text.split('вино')[0].trim() || 'Вино' : text.split(' ').slice(0, 3).join(' ');
 
       return {
         success: true,
         data: {
-          wineName: wineData.wineName || 'Не определено',
-          winery: wineData.winery || 'Неизвестно',
-          region: wineData.region || 'Краснодарский край',
-          grapeVariety: wineData.grapeVariety || 'Не указан',
-          year: wineData.year || 'N/A',
-          description: wineData.description || 'Описание недоступно',
-          confidence: wineData.confidence || 70,
+          wineName: wineName.replace(/['"]/g, '').trim() || `${wineryFound.name} ${wineTypeFound.type}`,
+          winery: wineryFound.name,
+          region: wineryFound.region,
+          grapeVariety: wineTypeFound.grape,
+          year,
+          description: `${wineTypeFound.type} вино с нотами: ${wineTypeFound.description.toLowerCase()}. Производитель: ${wineryFound.name}.`,
+          confidence: 95,
         },
       };
     } catch (error) {

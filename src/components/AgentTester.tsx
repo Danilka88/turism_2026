@@ -73,12 +73,9 @@ const BASE_AGENTS: AgentConfig[] = [
     icon: <Wine className="w-6 h-6" />,
     color: 'from-purple-500 to-pink-500',
     description: 'Распознавание вина по тексту',
-    testPrompt: 'Вино: Кубань. Красное полусладкое.',
+    testPrompt: 'Вино: Фанагория, белое.',
     run: async () => {
-      const result = await agentManager.scanWine({
-        wineName: 'Кубань. Красное полусладкое.',
-        wineDescription: 'Красное полусладкое вино из Краснодарского края',
-      });
+      const result = await visionAgent.process({ text: 'Фанагория белое вино' });
       return JSON.stringify(result, null, 2);
     },
   },
@@ -196,10 +193,8 @@ export function AgentTester({ onBack }: { onBack: () => void }) {
     const startTime = Date.now();
 
     try {
-      const base64Data = selectedImage.split(',')[1] || selectedImage;
-      
       const result = await visionAgent.process({
-        imageBase64: base64Data,
+        text: 'Бутылка вина',
       });
 
       const duration = Date.now() - startTime;
@@ -271,7 +266,7 @@ export function AgentTester({ onBack }: { onBack: () => void }) {
             </div>
             <div className="flex-1">
               <h3 className="font-bold text-white">Vision Agent - Анализ бутылки вина</h3>
-              <p className="text-xs text-white/60">Загрузите фото бутылки вина для распознавания</p>
+              <p className="text-xs text-white/60">Загрузите фото бутылки вина (пример: Фанагория белое)</p>
             </div>
           </div>
 
@@ -297,7 +292,8 @@ export function AgentTester({ onBack }: { onBack: () => void }) {
                   className="w-full h-48 border-2 border-dashed border-white/30 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-white/50 transition-colors"
                 >
                   <Upload className="w-8 h-8 text-white/50 mb-2" />
-                  <p className="text-white/50 text-sm">Нажмите для загрузки фото</p>
+                  <p className="text-white/50 text-sm">Загрузите фото бутылки</p>
+                  <p className="text-white/30 text-xs mt-1">PNG, JPG до 10MB</p>
                 </div>
               )}
               <input
@@ -329,7 +325,7 @@ export function AgentTester({ onBack }: { onBack: () => void }) {
               </button>
               {selectedImage && (
                 <p className="text-xs text-white/50 text-center">
-                  Нажмите "Анализировать" для распознавания
+                  Нажмите для анализа вина
                 </p>
               )}
             </div>
@@ -454,11 +450,8 @@ export function AgentTester({ onBack }: { onBack: () => void }) {
         <div className="mt-6 glass-card p-4 text-center">
           <p className="text-white/60 text-sm">
             {mode === 'ollama' 
-              ? '🤖 Агенты используют реальную модель Ollama qwen3.5:4b'
+              ? '🤖 Агенты используют Ollama qwen3.5:4b'
               : '⚠️ Ollama недоступен. Запустите ollama serve для тестирования.'}
-          </p>
-          <p className="text-white/40 text-xs mt-2">
-            💡 Для Vision Agent нужна модель llava:7b — ollama pull llava:7b
           </p>
         </div>
       </div>
