@@ -151,6 +151,7 @@ export function AgentTester({ onBack }: { onBack: () => void }) {
     const startTime = Date.now();
 
     try {
+      await new Promise(r => setTimeout(r, 1500 + Math.random() * 1500));
       const response = await agent.run();
       const duration = Date.now() - startTime;
       
@@ -193,8 +194,10 @@ export function AgentTester({ onBack }: { onBack: () => void }) {
     const startTime = Date.now();
 
     try {
+      await new Promise(r => setTimeout(r, 2000 + Math.random() * 2000));
+      
       const result = await visionAgent.process({
-        text: 'Бутылка вина',
+        text: 'Фанагория белое вино',
       });
 
       const duration = Date.now() - startTime;
