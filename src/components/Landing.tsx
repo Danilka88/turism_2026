@@ -1,13 +1,14 @@
 import { motion } from 'motion/react';
-import { Compass, Play, Wine, Zap } from 'lucide-react';
+import { Compass, Play, Wine, Zap, Map as MapIcon } from 'lucide-react';
 
 interface LandingProps {
   onStart: () => void;
   onWineScan: () => void;
   onEmergency: () => void;
+  onMapExplore: () => void;
 }
 
-export function Landing({ onStart, onWineScan, onEmergency }: LandingProps) {
+export function Landing({ onStart, onWineScan, onEmergency, onMapExplore }: LandingProps) {
   return (
     <motion.div 
       initial={{ opacity: 0 }} 
@@ -66,6 +67,16 @@ export function Landing({ onStart, onWineScan, onEmergency }: LandingProps) {
           >
             <Zap className="w-5 h-5" />
             Экстренный маршрут
+          </motion.button>
+          
+          <motion.button 
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={onMapExplore}
+            className="w-full py-3 px-6 bg-gradient-to-r from-cyan-500/80 to-blue-500/80 hover:from-cyan-600/80 hover:to-blue-600/80 text-white font-bold rounded-xl transition-all flex items-center justify-center gap-2 border border-white/20"
+          >
+            <MapIcon className="w-5 h-5" />
+            Путешествие по карте
           </motion.button>
         </div>
       </motion.div>

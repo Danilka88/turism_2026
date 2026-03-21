@@ -13,6 +13,7 @@ import {
   WineScanner,
   BookingForm,
   EmergencyRoute,
+  MapExplorer,
 } from './components';
 import type { AppState, SelectedExtras, Location } from './types';
 
@@ -41,6 +42,13 @@ function App() {
     setAcceptedLocations(locations);
     setSelectedExtras({});
     setBookingLocation(problem);
+    setState('final_route');
+  };
+
+  const handleMapRoute = (locations: Location[]) => {
+    setAcceptedLocations(locations);
+    setSelectedExtras({});
+    setBookingLocation('маршрут по карте');
     setState('final_route');
   };
 
@@ -77,6 +85,7 @@ function App() {
               onStart={() => setState('onboarding')} 
               onWineScan={() => setState('wine_scanner')}
               onEmergency={() => setState('emergency_route')}
+              onMapExplore={() => setState('map_explorer')}
             />
           )}
           {state === 'wine_scanner' && (
@@ -88,6 +97,12 @@ function App() {
           {state === 'emergency_route' && (
             <EmergencyRoute
               onBuildRoute={handleEmergencyRoute}
+              onBack={() => setState('landing')}
+            />
+          )}
+          {state === 'map_explorer' && (
+            <MapExplorer
+              onBuildRoute={handleMapRoute}
               onBack={() => setState('landing')}
             />
           )}

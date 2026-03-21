@@ -10,3 +10,4 @@ export { BusinessDashboard } from './BusinessDashboard';
 export { WineScanner } from './WineScanner';
 export { BookingForm } from './BookingForm';
 export { EmergencyRoute } from './EmergencyRoute';
+export { MapExplorer } from './MapExplorer';

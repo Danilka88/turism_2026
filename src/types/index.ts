@@ -56,7 +56,8 @@ export type AppState =
   | 'route_selection' 
   | 'final_route'
   | 'wine_scanner'
-  | 'emergency_route';
+  | 'emergency_route'
+  | 'map_explorer';
 
 export interface UserAnswers {
   interests: Record<number, { liked: boolean; comment: string }>;
