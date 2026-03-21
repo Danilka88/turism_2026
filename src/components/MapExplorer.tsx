@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useCallback } from 'react';
 import { MapContainer, TileLayer, CircleMarker, Popup, useMap, useMapEvents } from 'react-leaflet';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
@@ -26,68 +26,94 @@ function MapBoundsController() {
   return null;
 }
 
-function HeatZones({ selectedIds, allLocs }: { selectedIds: number[]; allLocs: MapLocation[] }) {
+function FullHeatMap({ selectedIds, allLocs }: { selectedIds: number[]; allLocs: MapLocation[] }) {
   const map = useMap();
-  const [zoom, setZoom] = useState(map.getZoom());
+  const [bounds, setBounds] = useState(map.getBounds());
   
   useMapEvents({
-    zoomend: () => setZoom(map.getZoom()),
+    moveend: () => setBounds(map.getBounds()),
+    zoomend: () => setBounds(map.getBounds()),
   });
+  
+  useEffect(() => {
+    const update = () => setBounds(map.getBounds());
+    map.on('moveend', update);
+    map.on('zoomend', update);
+    update();
+    return () => {
+      map.off('moveend', update);
+      map.off('zoomend', update);
+    };
+  }, [map]);
+  
+  const gridPoints = useMemo(() => {
+    if (selectedIds.length === 0) return [];
+    
+    const selectedLocs = selectedIds
+      .map(id => allLocs.find(l => l.id === id))
+      .filter(Boolean) as MapLocation[];
+    
+    const sw = bounds.getSouthWest();
+    const ne = bounds.getNorthEast();
+    
+    const latStep = Math.max(0.02, (ne.lat - sw.lat) / 40);
+    const lngStep = Math.max(0.02, (ne.lng - sw.lng) / 40);
+    
+    const points: Array<{ lat: number; lng: number; dist: number }> = [];
+    
+    for (let lat = sw.lat; lat <= ne.lat; lat += latStep) {
+      for (let lng = sw.lng; lng <= ne.lng; lng += lngStep) {
+        let minDist = Infinity;
+        selectedLocs.forEach(sel => {
+          const dist = Math.sqrt(
+            Math.pow((lat - sel.lat) * 111, 2) + 
+            Math.pow((lng - sel.lng) * 85, 2)
+          );
+          minDist = Math.min(minDist, dist);
+        });
+        points.push({ lat, lng, dist: minDist });
+      }
+    }
+    
+    return points;
+  }, [selectedIds, allLocs, bounds]);
   
   if (selectedIds.length === 0) return null;
   
-  const selectedLocs = selectedIds.map(id => allLocs.find(l => l.id === id)!);
-  
-  const allOtherLocs = allLocs.filter(l => !selectedIds.includes(l.id));
-  
-  const zones: Array<{ loc: MapLocation; dist: number }> = allOtherLocs.map(loc => {
-    let minDist = Infinity;
-    selectedLocs.forEach(sel => {
-      if (!sel) return;
-      const dist = Math.sqrt(
-        Math.pow((loc.lat - sel.lat) * 111, 2) + 
-        Math.pow((loc.lng - sel.lng) * 85, 2)
-      );
-      minDist = Math.min(minDist, dist);
-    });
-    return { loc, dist: minDist };
-  });
-  
-  const baseRadius = Math.max(10, 20 - zoom * 0.8);
-  
   return (
     <>
-      {zones.map(({ loc, dist }) => {
-        let color = '#dc2626';
-        let opacity = 0.15;
+      {gridPoints.map((point, i) => {
+        let color = '#ef4444';
+        let opacity = 0.08;
         
-        if (dist < 20) {
+        if (point.dist < 15) {
+          color = '#15803d';
+          opacity = 0.35;
+        } else if (point.dist < 30) {
           color = '#16a34a';
-          opacity = 0.45;
-        } else if (dist < 40) {
+          opacity = 0.30;
+        } else if (point.dist < 50) {
           color = '#22c55e';
-          opacity = 0.38;
-        } else if (dist < 70) {
+          opacity = 0.25;
+        } else if (point.dist < 80) {
           color = '#84cc16';
-          opacity = 0.32;
-        } else if (dist < 110) {
-          color = '#eab308';
-          opacity = 0.26;
-        } else if (dist < 160) {
-          color = '#f97316';
           opacity = 0.20;
-        } else if (dist < 220) {
-          color = '#dc2626';
+        } else if (point.dist < 120) {
+          color = '#eab308';
           opacity = 0.15;
+        } else if (point.dist < 180) {
+          color = '#f97316';
+          opacity = 0.10;
+        } else {
+          color = '#dc2626';
+          opacity = 0.06;
         }
-        
-        const radius = baseRadius * (1 + (220 - Math.min(dist, 220)) / 220 * 0.5);
         
         return (
           <CircleMarker
-            key={`heat-${loc.id}`}
-            center={[loc.lat, loc.lng]}
-            radius={radius}
+            key={`heat-${i}`}
+            center={[point.lat, point.lng]}
+            radius={8}
             pathOptions={{
               color: color,
               fillColor: color,
@@ -102,7 +128,7 @@ function HeatZones({ selectedIds, allLocs }: { selectedIds: number[]; allLocs: M
   );
 }
 
-function SelectedPointRings({ selectedIds, allLocs }: { selectedIds: number[]; allLocs: MapLocation[] }) {
+function SelectedPointGlow({ selectedIds, allLocs }: { selectedIds: number[]; allLocs: MapLocation[] }) {
   const map = useMap();
   const [zoom, setZoom] = useState(map.getZoom());
   
@@ -112,7 +138,7 @@ function SelectedPointRings({ selectedIds, allLocs }: { selectedIds: number[]; a
   
   if (selectedIds.length === 0) return null;
   
-  const baseRadius = Math.max(15, 30 - zoom * 1.2);
+  const baseRadius = Math.max(20, 50 - zoom * 2);
   
   return (
     <>
@@ -122,13 +148,13 @@ function SelectedPointRings({ selectedIds, allLocs }: { selectedIds: number[]; a
         
         return (
           <CircleMarker
-            key={`ring-${loc.id}`}
+            key={`glow-${loc.id}`}
             center={[loc.lat, loc.lng]}
-            radius={baseRadius * 4}
+            radius={baseRadius * 5}
             pathOptions={{
               color: '#16a34a',
               fillColor: '#16a34a',
-              fillOpacity: 0.1,
+              fillOpacity: 0.12,
               weight: 0,
             }}
             interactive={false}
@@ -150,13 +176,13 @@ export function MapExplorer({ onBuildRoute, onBack }: MapExplorerProps) {
     return MAP_LOCATIONS.filter(loc => loc.category === activeCategory);
   }, [activeCategory]);
 
-  const toggleLocation = (id: number) => {
+  const toggleLocation = useCallback((id: number) => {
     setSelectedLocations(prev =>
       prev.includes(id)
         ? prev.filter(l => l !== id)
         : [...prev, id]
     );
-  };
+  }, []);
 
   const selectedLocObjects = useMemo(() =>
     selectedLocations.map(id => MAP_LOCATIONS.find(l => l.id === id)!).filter(Boolean),
@@ -193,8 +219,8 @@ export function MapExplorer({ onBuildRoute, onBack }: MapExplorerProps) {
         
         <MapBoundsController />
         
-        <SelectedPointRings selectedIds={selectedLocations} allLocs={MAP_LOCATIONS} />
-        <HeatZones selectedIds={selectedLocations} allLocs={MAP_LOCATIONS} />
+        <SelectedPointGlow selectedIds={selectedLocations} allLocs={MAP_LOCATIONS} />
+        <FullHeatMap selectedIds={selectedLocations} allLocs={MAP_LOCATIONS} />
 
         {filteredLocations.map((loc) => {
           const isSelected = selectedLocations.includes(loc.id);
@@ -206,7 +232,7 @@ export function MapExplorer({ onBuildRoute, onBack }: MapExplorerProps) {
               center={[loc.lat, loc.lng]}
               radius={isSelected ? 14 : isHovered ? 12 : 10}
               pathOptions={{
-                color: isSelected ? '#ffffff' : '#ffffff',
+                color: '#ffffff',
                 fillColor: isSelected ? '#16a34a' : getCategoryColor(loc),
                 fillOpacity: isSelected ? 1 : isHovered ? 0.95 : 0.85,
                 weight: isSelected || isHovered ? 3 : 2,
@@ -255,7 +281,6 @@ export function MapExplorer({ onBuildRoute, onBack }: MapExplorerProps) {
 
       {/* Top UI Panel - Light theme */}
       <div className="absolute top-0 left-0 right-0 z-[1000]">
-        {/* Header */}
         <div className="bg-gradient-to-b from-black/80 via-black/60 to-transparent p-4 pb-16">
           <div className="flex items-center gap-3 mb-4">
             <button
@@ -305,7 +330,7 @@ export function MapExplorer({ onBuildRoute, onBack }: MapExplorerProps) {
         </div>
       </div>
 
-      {/* Selected List Panel - Light theme */}
+      {/* Selected List Panel */}
       <AnimatePresence>
         {showList && (
           <motion.div
@@ -377,22 +402,23 @@ export function MapExplorer({ onBuildRoute, onBack }: MapExplorerProps) {
         )}
       </AnimatePresence>
 
-      {/* Heat Map Legend - Light theme */}
+      {/* Heat Map Legend */}
       {selectedLocations.length > 0 && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="absolute bottom-24 right-4 z-[900] bg-white/95 backdrop-blur-xl rounded-2xl px-4 py-3 shadow-lg border border-gray-200 hidden md:block"
         >
-          <p className="text-gray-600 text-xs font-bold mb-2">Близость:</p>
+          <p className="text-gray-600 text-xs font-bold mb-2">Близость к выбранным:</p>
           <div className="space-y-1.5">
             {[
-              { color: '#16a34a', label: '< 20 км' },
-              { color: '#22c55e', label: '20-40 км' },
-              { color: '#84cc16', label: '40-70 км' },
-              { color: '#eab308', label: '70-110 км' },
-              { color: '#f97316', label: '110-160 км' },
-              { color: '#dc2626', label: '> 160 км' },
+              { color: '#15803d', label: '< 15 км' },
+              { color: '#16a34a', label: '15-30 км' },
+              { color: '#22c55e', label: '30-50 км' },
+              { color: '#84cc16', label: '50-80 км' },
+              { color: '#eab308', label: '80-120 км' },
+              { color: '#f97316', label: '120-180 км' },
+              { color: '#dc2626', label: '> 180 км' },
             ].map(item => (
               <div key={item.color} className="flex items-center gap-2">
                 <div
