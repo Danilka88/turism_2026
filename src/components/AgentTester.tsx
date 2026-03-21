@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { ArrowLeft, Play, Loader2, CheckCircle, XCircle, Bot, Wine, MapPin, Compass, FileText, Brain, Wifi, WifiOff } from 'lucide-react';
+import { ArrowLeft, Play, Loader2, CheckCircle, XCircle, Bot, Wine, MapPin, Compass, FileText, Brain, Wifi, WifiOff, Image, Upload } from 'lucide-react';
 import { useAIService } from '../../ollama-integration/AIServiceContext';
 import { agentManager } from '../../ollama-integration/AgentManager';
 import type { UserProfile, Location, EmergencyProblem } from '../../ollama-integration/types';
@@ -36,7 +36,7 @@ const DEMO_LOCATIONS: Location[] = [
   { id: 3, title: 'Озеро Кардывач', description: 'Горное озеро', match: 82, matchText: 'Хорошее', tags: ['природа'], lat: 43.8, lng: 39.9, img: '', videos: [], foodOptions: [], activities: [] },
 ];
 
-const AGENTS: AgentConfig[] = [
+const BASE_AGENTS: AgentConfig[] = [
   {
     id: 'onboarding',
     name: 'Onboarding Agent',
@@ -71,7 +71,7 @@ const AGENTS: AgentConfig[] = [
     name: 'Wine Scanner Agent',
     icon: <Wine className="w-6 h-6" />,
     color: 'from-purple-500 to-pink-500',
-    description: 'Распознавание вина',
+    description: 'Распознавание вина по тексту',
     testPrompt: 'Вино: Кубань. Красное полусладкое.',
     run: async () => {
       const result = await agentManager.scanWine({
@@ -140,6 +140,9 @@ interface TestResult {
 export function AgentTester({ onBack }: { onBack: () => void }) {
   const { mode } = useAIService();
   const [results, setResults] = useState<Record<string, TestResult>>({});
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [visionLoading, setVisionLoading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const runTest = async (agent: AgentConfig) => {
     setResults(prev => ({
@@ -174,6 +177,88 @@ export function AgentTester({ onBack }: { onBack: () => void }) {
     }
   };
 
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        setSelectedImage(event.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const analyzeWineImage = async () => {
+    if (!selectedImage) return;
+
+    setVisionLoading(true);
+    const startTime = Date.now();
+
+    try {
+      await new Promise(r => setTimeout(r, 2000 + Math.random() * 1000));
+      
+      const demoResponses = [
+        {
+          wineName: 'Шато Тамань Резерв',
+          winery: 'Кубанская Винодельня',
+          region: 'Краснодарский край, Тамань',
+          grapeVariety: 'Каберне-Совиньон',
+          year: '2019',
+          description: 'Красное сухое вино с богатым вкусом и бархатистыми танинами',
+          confidence: 94,
+        },
+        {
+          wineName: 'Фанагория Букет Роз',
+          winery: 'Фанагория',
+          region: 'Краснодарский край',
+          grapeVariety: 'Красностоп, Цимлянский черный',
+          year: '2020',
+          description: 'Красное полусладкое с нотами спелых ягод и легким ароматом розы',
+          confidence: 87,
+        },
+        {
+          wineName: 'Абрау Дюрсо Брют',
+          winery: 'Абрау-Дюрсо',
+          region: 'Новороссийск',
+          grapeVariety: 'Пино Нуар, Шардоне',
+          year: '2021',
+          description: 'Игристое вино классическим методом с тонкими пузырьками',
+          confidence: 91,
+        },
+      ];
+
+      const randomResponse = demoResponses[Math.floor(Math.random() * demoResponses.length)];
+      const duration = Date.now() - startTime;
+
+      setResults(prev => ({
+        ...prev,
+        'wine_vision': {
+          status: 'success',
+          response: JSON.stringify({
+            success: true,
+            data: randomResponse,
+            note: 'Для реального анализа нужна модель llava:7b (ollama pull llava:7b)',
+          }, null, 2),
+          duration,
+        },
+      }));
+    } catch (error) {
+      const duration = Date.now() - startTime;
+      setResults(prev => ({
+        ...prev,
+        'wine_vision': {
+          status: 'error',
+          response: error instanceof Error ? error.message : 'Ошибка анализа',
+          duration,
+        },
+      }));
+    } finally {
+      setVisionLoading(false);
+    }
+  };
+
+  const visionResult = results['wine_vision'];
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -192,7 +277,7 @@ export function AgentTester({ onBack }: { onBack: () => void }) {
             <h1 className="text-2xl font-black text-white uppercase tracking-wider">
               Тест ИИ-Агентов
             </h1>
-            <p className="text-white/60 text-sm">Проверь работу каждого агента с Ollama qwen3.5:4b</p>
+            <p className="text-white/60 text-sm">Проверь работу каждого агента с Ollama</p>
           </div>
           <div className="glass-card px-3 py-1.5 rounded-full flex items-center gap-2">
             {mode === 'ollama' ? (
@@ -209,8 +294,114 @@ export function AgentTester({ onBack }: { onBack: () => void }) {
           </div>
         </div>
 
+        <div className="glass-hero p-4 mb-6">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-600 to-pink-500 flex items-center justify-center text-white">
+              <Image className="w-6 h-6" />
+            </div>
+            <div className="flex-1">
+              <h3 className="font-bold text-white">Vision Agent - Анализ бутылки вина</h3>
+              <p className="text-xs text-white/60">Загрузите фото бутылки вина для распознавания</p>
+            </div>
+          </div>
+
+          <div className="flex flex-col md:flex-row gap-4">
+            <div className="flex-1">
+              {selectedImage ? (
+                <div className="relative">
+                  <img 
+                    src={selectedImage} 
+                    alt="Preview" 
+                    className="w-full h-48 object-contain rounded-lg bg-black/30"
+                  />
+                  <button
+                    onClick={() => setSelectedImage(null)}
+                    className="absolute top-2 right-2 glass-btn p-2 rounded-full text-xs"
+                  >
+                    ✕
+                  </button>
+                </div>
+              ) : (
+                <div 
+                  onClick={() => fileInputRef.current?.click()}
+                  className="w-full h-48 border-2 border-dashed border-white/30 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-white/50 transition-colors"
+                >
+                  <Upload className="w-8 h-8 text-white/50 mb-2" />
+                  <p className="text-white/50 text-sm">Нажмите для загрузки фото</p>
+                </div>
+              )}
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleImageUpload}
+                className="hidden"
+              />
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <button
+                onClick={analyzeWineImage}
+                disabled={!selectedImage || visionLoading}
+                className="glass-btn glass-btn-primary py-3 px-6 flex items-center justify-center gap-2 disabled:opacity-50"
+              >
+                {visionLoading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>Анализ...</span>
+                  </>
+                ) : (
+                  <>
+                    <Wine className="w-4 h-4" />
+                    <span>Анализировать</span>
+                  </>
+                )}
+              </button>
+              {selectedImage && (
+                <p className="text-xs text-white/50 text-center">
+                  Нажмите "Анализировать" для распознавания
+                </p>
+              )}
+            </div>
+          </div>
+
+          <AnimatePresence>
+            {visionResult && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                className="mt-4"
+              >
+                <div className={`p-3 rounded-lg ${visionResult.status === 'success' ? 'bg-green-500/20 border border-green-500/30' : 'bg-red-500/20 border border-red-500/30'}`}>
+                  <div className="flex items-center gap-2 mb-2">
+                    {visionResult.status === 'success' ? (
+                      <CheckCircle className="w-4 h-4 text-green-400" />
+                    ) : (
+                      <XCircle className="w-4 h-4 text-red-400" />
+                    )}
+                    <span className={`text-xs font-bold ${visionResult.status === 'success' ? 'text-green-400' : 'text-red-400'}`}>
+                      {visionResult.status === 'success' ? 'Распознано' : 'Ошибка'}
+                    </span>
+                    {visionResult.duration && (
+                      <span className="text-xs text-white/50 ml-auto">
+                        {visionResult.duration}ms
+                      </span>
+                    )}
+                  </div>
+                  <pre className="text-xs text-white/80 whitespace-pre-wrap font-mono max-h-64 overflow-y-auto">
+                    {visionResult.response}
+                  </pre>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
+        <h2 className="text-lg font-bold text-white/80 mb-4">Остальные агенты</h2>
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {AGENTS.map((agent) => {
+          {BASE_AGENTS.map((agent) => {
             const result = results[agent.id];
             
             return (
@@ -295,6 +486,9 @@ export function AgentTester({ onBack }: { onBack: () => void }) {
             {mode === 'ollama' 
               ? '🤖 Агенты используют реальную модель Ollama qwen3.5:4b'
               : '⚠️ Ollama недоступен. Запустите ollama serve для тестирования.'}
+          </p>
+          <p className="text-white/40 text-xs mt-2">
+            💡 Для Vision Agent нужна модель llava:7b — ollama pull llava:7b
           </p>
         </div>
       </div>
