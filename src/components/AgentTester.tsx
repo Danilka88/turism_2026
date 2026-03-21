@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { ArrowLeft, Play, Loader2, CheckCircle, XCircle, Bot, Wine, MapPin, Compass, FileText, Brain, Wifi, WifiOff, Image, Upload } from 'lucide-react';
 import { useAIService } from '../../ollama-integration/AIServiceContext';
 import { agentManager } from '../../ollama-integration/AgentManager';
+import { visionAgent } from '../../ollama-integration/agents/VisionAgent';
 import type { UserProfile, Location, EmergencyProblem } from '../../ollama-integration/types';
 
 interface AgentConfig {
@@ -195,50 +196,19 @@ export function AgentTester({ onBack }: { onBack: () => void }) {
     const startTime = Date.now();
 
     try {
-      await new Promise(r => setTimeout(r, 2000 + Math.random() * 1000));
+      const base64Data = selectedImage.split(',')[1] || selectedImage;
       
-      const demoResponses = [
-        {
-          wineName: 'Шато Тамань Резерв',
-          winery: 'Кубанская Винодельня',
-          region: 'Краснодарский край, Тамань',
-          grapeVariety: 'Каберне-Совиньон',
-          year: '2019',
-          description: 'Красное сухое вино с богатым вкусом и бархатистыми танинами',
-          confidence: 94,
-        },
-        {
-          wineName: 'Фанагория Букет Роз',
-          winery: 'Фанагория',
-          region: 'Краснодарский край',
-          grapeVariety: 'Красностоп, Цимлянский черный',
-          year: '2020',
-          description: 'Красное полусладкое с нотами спелых ягод и легким ароматом розы',
-          confidence: 87,
-        },
-        {
-          wineName: 'Абрау Дюрсо Брют',
-          winery: 'Абрау-Дюрсо',
-          region: 'Новороссийск',
-          grapeVariety: 'Пино Нуар, Шардоне',
-          year: '2021',
-          description: 'Игристое вино классическим методом с тонкими пузырьками',
-          confidence: 91,
-        },
-      ];
+      const result = await visionAgent.process({
+        imageBase64: base64Data,
+      });
 
-      const randomResponse = demoResponses[Math.floor(Math.random() * demoResponses.length)];
       const duration = Date.now() - startTime;
 
       setResults(prev => ({
         ...prev,
         'wine_vision': {
-          status: 'success',
-          response: JSON.stringify({
-            success: true,
-            data: randomResponse,
-            note: 'Для реального анализа нужна модель llava:7b (ollama pull llava:7b)',
-          }, null, 2),
+          status: result.success ? 'success' : 'error',
+          response: JSON.stringify(result, null, 2),
           duration,
         },
       }));

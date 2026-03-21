@@ -140,7 +140,8 @@ ${JSON.stringify(options.schema || {}, null, 2)}`;
   }
 
   async chat(
-    messages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }>,
+    messages: Array<{ role: 'system' | 'user' | 'assistant'; content: string | Array<{ type: string; text?: string; image?: string }> }>,
+    systemPrompt?: string,
     options: {
       temperature?: number;
       maxTokens?: number;
@@ -152,6 +153,13 @@ ${JSON.stringify(options.schema || {}, null, 2)}`;
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), this.config.timeout);
 
+      const formattedMessages = messages.map(msg => {
+        if (typeof msg.content === 'string') {
+          return msg;
+        }
+        return msg;
+      });
+
       const response = await fetch(`${this.config.baseUrl}/api/chat`, {
         method: 'POST',
         headers: {
@@ -160,8 +168,8 @@ ${JSON.stringify(options.schema || {}, null, 2)}`;
         body: JSON.stringify({
           model: this.config.model,
           messages: [
-            { role: 'system', content: this.defaultSystemPrompt },
-            ...messages,
+            { role: 'system', content: systemPrompt || this.defaultSystemPrompt },
+            ...formattedMessages,
           ],
           stream: false,
           temperature: options.temperature ?? this.config.temperature,
