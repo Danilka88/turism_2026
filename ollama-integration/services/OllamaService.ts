@@ -34,10 +34,10 @@ export class OllamaService {
   constructor(config: Partial<OllamaConfig> = {}) {
     this.config = {
       baseUrl: config.baseUrl || 'http://localhost:11434',
-      model: config.model || 'qwen2.5:4b',
-      temperature: config.temperature ?? 0.7,
-      maxTokens: config.maxTokens ?? 1000,
-      timeout: config.timeout ?? 60000,
+      model: config.model || 'qwen3.5:4b',
+      temperature: config.temperature ?? 0.5,
+      maxTokens: config.maxTokens ?? 200,
+      timeout: config.timeout ?? 180000,
     };
   }
 

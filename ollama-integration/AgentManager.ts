@@ -38,7 +38,7 @@ class AgentManager {
   private constructor(config?: AgentManagerConfig) {
     this.ollama = new OllamaService({
       baseUrl: config?.baseUrl || 'http://localhost:11434',
-      model: config?.model || 'qwen2.5:4b',
+      model: config?.model || 'qwen3.5:4b',
       timeout: config?.timeout || 60000,
     });
   }

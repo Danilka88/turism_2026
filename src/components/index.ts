@@ -11,3 +11,4 @@ export { WineScanner } from './WineScanner';
 export { BookingForm } from './BookingForm';
 export { EmergencyRoute } from './EmergencyRoute';
 export { MapExplorer } from './MapExplorer';
+export { AgentTester } from './AgentTester';

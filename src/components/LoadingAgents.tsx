@@ -1,70 +1,88 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'motion/react';
-import { Search, Compass, Sparkles } from 'lucide-react';
+import { Search, Compass, Sparkles, Wifi, WifiOff } from 'lucide-react';
+import { useAIService } from '../../ollama-integration/AIServiceContext';
+import type { UserProfile } from '../../ollama-integration/types';
 
 interface LoadingAgentsProps {
   onComplete: () => void;
+  likedInterests?: number[];
+  companions?: string;
 }
 
 type LoadingStatus = 
+  | 'Подключение к ИИ...'
   | 'Анализ ответов...'
-  | 'Агент-Популярный и Агент-Редкий анализируют профиль...'
-  | 'Агент-Семья и Агент-Гастро составляют маршрут...';
+  | 'Профиль составлен!'
+  | 'Агент-Популярный и Агент-Редкий анализируют...'
+  | 'Агент-Семья и Агент-Гастро составляют маршрут...'
+  | 'Маршрут готов!';
 
 const AGENTS = ['Популярный', 'Редкий', 'Винный', 'Семья'] as const;
 
-export function LoadingAgents({ onComplete }: LoadingAgentsProps) {
-  const [status, setStatus] = useState<LoadingStatus>('Анализ ответов...');
+export function LoadingAgents({ onComplete, likedInterests = [], companions = 'Компания друзей' }: LoadingAgentsProps) {
+  const [status, setStatus] = useState<LoadingStatus>('Подключение к ИИ...');
   const [progress, setProgress] = useState(0);
+  const [modeIcon, setModeIcon] = useState<'wifi' | 'wifi-off'>('wifi');
+  const { mode, matchRoutes } = useAIService();
 
   const runAI = useCallback(async () => {
-    const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+    setStatus('Анализ ответов...');
     
-    if (apiKey && apiKey !== 'YOUR_GEMINI_API_KEY') {
+    const userProfile: UserProfile = {
+      id: 'temp-user',
+      interests: likedInterests.map(id => ({ id, category: 'general', name: `Interest ${id}`, liked: true })),
+      companions: [{ id: 'companion', name: companions, icon: '👥' }],
+      preferences: { foodPreferences: [], noKidsMode: false },
+      history: { viewedLocations: [], selectedLocations: [], rejectedLocations: [], bookings: [] },
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    
+    if (mode === 'ollama') {
+      setModeIcon('wifi');
+      setStatus('Профиль составлен!');
+      await new Promise(r => setTimeout(r, 800));
+      
+      setStatus('Агент-Популярный и Агент-Редкий анализируют...');
       try {
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: 'Проанализируй профиль туриста: любит вино, горы, едет с семьей. Выдай 3 ключевых интереса.' }] }]
-          })
-        });
-        if (!response.ok) throw new Error('API Error');
-        
-        setStatus('Агент-Популярный и Агент-Редкий анализируют профиль...');
-        
-        await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: 'Составь маршрут по Краснодарскому краю на 3 дня для семьи.' }] }]
-          })
-        });
-        
-        setStatus('Агент-Семья и Агент-Гастро составляют маршрут...');
+        await matchRoutes({ userProfile, locations: [] });
       } catch (e) {
-        console.error('AI Analysis failed:', e);
+        console.warn('Route matching via Ollama failed');
       }
-    } else {
-      setStatus('Агент-Популярный и Агент-Редкий анализируют профиль...');
-      await new Promise(r => setTimeout(r, 1500));
+      
       setStatus('Агент-Семья и Агент-Гастро составляют маршрут...');
-      await new Promise(r => setTimeout(r, 1500));
+      await new Promise(r => setTimeout(r, 1200));
+    } else {
+      setModeIcon('wifi-off');
+      setStatus('Профиль составлен!');
+      await new Promise(r => setTimeout(r, 800));
+      setStatus('Агент-Популярный и Агент-Редкий анализируют...');
+      await new Promise(r => setTimeout(r, 1200));
+      setStatus('Агент-Семья и Агент-Гастро составляют маршрут...');
+      await new Promise(r => setTimeout(r, 1200));
     }
     
+    setStatus('Маршрут готов!');
+    await new Promise(r => setTimeout(r, 500));
     onComplete();
-  }, [onComplete]);
+  }, [mode, matchRoutes, likedInterests, companions, onComplete]);
 
   useEffect(() => {
     const startTime = Date.now();
-    const duration = 3000;
+    const duration = 4500;
     
     const interval = setInterval(() => {
       const elapsed = Date.now() - startTime;
       setProgress(Math.min((elapsed / duration) * 100, 100));
     }, 50);
 
-    runAI().finally(() => clearInterval(interval));
+    const timeout = setTimeout(() => runAI().finally(() => clearInterval(interval)), 500);
+    
+    return () => {
+      clearInterval(interval);
+      clearTimeout(timeout);
+    };
   }, [runAI]);
 
   return (
@@ -96,6 +114,21 @@ export function LoadingAgents({ onComplete }: LoadingAgentsProps) {
             </motion.div>
           </div>
         </div>
+        
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="flex items-center gap-2 px-3 py-1.5 rounded-full glass-card text-xs"
+        >
+          {modeIcon === 'wifi' ? (
+            <Wifi className="w-3 h-3 text-glass-cyan" />
+          ) : (
+            <WifiOff className="w-3 h-3 text-glass-accent" />
+          )}
+          <span className="text-white/70">
+            {mode === 'ollama' ? 'Ollama qwen3.5:4b' : mode === 'demo' ? 'Демо-режим' : 'Ожидание...'}
+          </span>
+        </motion.div>
         
         <motion.h2 
           key={status}

@@ -1,8 +1,7 @@
 import { BaseAgent } from './BaseAgent';
 import type { AgentResponse, OnboardingInput, OnboardingOutput } from '../types';
 
-const SYSTEM_PROMPT = `Ты - ИИ-аналитик для туристического приложения "Привет, Краснодарский край".
-Создай профиль путешественника на основе интересов. Отвечай кратко, на русском. Верни JSON.`;
+const SYSTEM_PROMPT = `Ты - короткий ИИ-ассистент. Отвечай на русском, очень кратко, 2-3 предложения.`;
 
 export class OnboardingAgent extends BaseAgent {
   constructor() {
@@ -10,43 +9,45 @@ export class OnboardingAgent extends BaseAgent {
       name: 'OnboardingAgent',
       type: 'onboarding',
       systemPrompt: SYSTEM_PROMPT,
-      temperature: 0.7,
+      temperature: 0.3,
+      maxTokens: 150,
     });
   }
 
   async process(input: OnboardingInput): Promise<AgentResponse<OnboardingOutput>> {
     try {
-      const prompt = this.buildPrompt(input);
-      const { data } = await this.callOllamaStructured<OnboardingOutput>(prompt, {
-        profile: {
-          id: 'string',
-          interests: 'array',
-          preferredCategories: 'array<string>',
-          travelStyle: 'string',
-          budgetLevel: 'string',
-        },
-        summary: 'string',
-        recommendedCategories: 'array<string>',
-      });
+      const interests = input.selectedInterests
+        .filter(i => i.liked)
+        .map(i => i.id)
+        .join(', ');
 
-      return { success: true, data };
+      const response = await this.ollama.chat([
+        { role: 'user', content: `Профиль: интересы ${interests}. Кратко опиши стиль путешественника на русском.` }
+      ]);
+
+      const profile = {
+        id: 'generated-' + Date.now(),
+        interests: input.selectedInterests.map(i => ({ id: i.id, category: 'general', name: `Interest ${i.id}`, liked: i.liked })),
+        companions: [],
+        preferences: { foodPreferences: [], noKidsMode: false },
+        history: { viewedLocations: [], selectedLocations: [], rejectedLocations: [], bookings: [] },
+        preferredCategories: input.selectedInterests.filter(i => i.liked).map(i => `Category ${i.id}`),
+        travelStyle: 'explorer',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+
+      return {
+        success: true,
+        data: {
+          profile,
+          summary: response.response || 'Профиль составлен',
+          recommendedCategories: profile.preferredCategories,
+        },
+      };
     } catch (error) {
       return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
     }
-  }
-
-  private buildPrompt(input: OnboardingInput): string {
-    const names: Record<number, string> = {
-      1: 'Вино и винодельни', 2: 'Горные прогулки', 3: 'Фермы и сыроварни',
-      4: 'Дольмены', 5: 'Экстремальный спорт', 6: 'Спокойный пляж',
-      7: 'Казачья история', 8: 'Гастрономия',
-    };
-
-    const interests = input.selectedInterests
-      .map(i => `- ${names[i.id] || i.id}: ${i.liked ? 'понравилось' : 'не понравилось'}${i.comment ? ` (${i.comment})` : ''}`)
-      .join('\n');
-
-    return `Создай профиль путешественника.\n${interests}\n\nВерни JSON: {"profile":{"id":"uuid","interests":[],"preferredCategories":[],"travelStyle":"","budgetLevel":""},"summary":"","recommendedCategories":[]}`;
   }
 }
 

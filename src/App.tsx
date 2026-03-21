@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
-import { Briefcase } from 'lucide-react';
+import { Briefcase, FlaskConical } from 'lucide-react';
 import { LOCATIONS } from './data';
 import {
   Landing,
@@ -14,14 +14,18 @@ import {
   BookingForm,
   EmergencyRoute,
   MapExplorer,
+  AgentTester,
 } from './components';
 import type { AppState, SelectedExtras, Location } from './types';
 import type { MapLocation } from './data/mapData';
+import { AIServiceProvider } from '../ollama-integration/AIServiceContext';
 
 function App() {
   const [state, setState] = useState<AppState>('landing');
   const [isBusinessMode, setIsBusinessMode] = useState(false);
+  const [showAgentTester, setShowAgentTester] = useState(false);
   const [likedInterests, setLikedInterests] = useState<number[]>([]);
+  const [companions, setCompanions] = useState<string>('Компания друзей');
   const [selectedExtras, setSelectedExtras] = useState<SelectedExtras>({});
   const [acceptedLocations, setAcceptedLocations] = useState<Location[]>([]);
   const [showBooking, setShowBooking] = useState(false);
@@ -81,86 +85,111 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen relative">
-      <div className="fixed top-4 right-4 z-50">
-        <motion.button 
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={() => setIsBusinessMode(!isBusinessMode)}
-          className="glass-btn px-4 py-2.5 text-sm flex items-center gap-2 backdrop-blur-xl"
-        >
-          <Briefcase className="w-4 h-4" />
-          <span className="hidden sm:inline text-white font-bold">
-            {isBusinessMode ? 'Выйти' : 'Я — владелец'}
-          </span>
-        </motion.button>
+    <AIServiceProvider fallbackToDemo={true}>
+      <div className="min-h-screen relative">
+        {showAgentTester ? (
+          <AgentTester onBack={() => setShowAgentTester(false)} />
+        ) : (
+          <>
+        <div className="fixed top-4 right-4 z-50 flex gap-2">
+          <motion.button 
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => setShowAgentTester(true)}
+            className="glass-btn px-4 py-2.5 text-sm flex items-center gap-2 backdrop-blur-xl"
+            title="Тест агентов"
+          >
+            <FlaskConical className="w-4 h-4" />
+            <span className="hidden lg:inline text-white font-bold">Тест</span>
+          </motion.button>
+          <motion.button 
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => setIsBusinessMode(!isBusinessMode)}
+            className="glass-btn px-4 py-2.5 text-sm flex items-center gap-2 backdrop-blur-xl"
+          >
+            <Briefcase className="w-4 h-4" />
+            <span className="hidden sm:inline text-white font-bold">
+              {isBusinessMode ? 'Выйти' : 'Я — владелец'}
+            </span>
+          </motion.button>
+        </div>
+
+        {isBusinessMode ? (
+          <BusinessDashboard />
+        ) : (
+          <AnimatePresence mode="wait">
+            {state === 'landing' && (
+              <Landing 
+                onStart={() => setState('onboarding')} 
+                onWineScan={() => setState('wine_scanner')}
+                onEmergency={() => setState('emergency_route')}
+                onMapExplore={() => setState('map_explorer')}
+              />
+            )}
+            {state === 'wine_scanner' && (
+              <WineScanner 
+                onBuildTour={handleWineTourBuild}
+                onBack={() => setState('landing')}
+              />
+            )}
+            {state === 'emergency_route' && (
+              <EmergencyRoute
+                onBuildRoute={handleEmergencyRoute}
+                onBack={() => setState('landing')}
+              />
+            )}
+            {state === 'map_explorer' && (
+              <MapExplorer
+                onBuildRoute={handleMapRoute}
+                onBack={() => setState('landing')}
+              />
+            )}
+            {state === 'onboarding' && (
+              <Onboarding onComplete={(liked) => {
+                setLikedInterests(liked);
+                setState('profile');
+              }} />
+            )}
+            {state === 'profile' && (
+              <GroupFighterSelect onComplete={(selected) => {
+                setCompanions(selected);
+                setState('loading');
+              }} />
+            )}
+            {state === 'loading' && (
+              <LoadingAgents 
+                onComplete={() => setState('route_selection')}
+                likedInterests={likedInterests}
+                companions={companions}
+              />
+            )}
+            {state === 'route_selection' && (
+              <ResultsLayout 
+                locations={LOCATIONS}
+                likedInterests={likedInterests}
+                onFinish={handleRouteSelectionComplete} 
+              />
+            )}
+            {state === 'final_route' && (
+              <FinalRoute 
+                locations={acceptedLocations} 
+                selectedExtras={selectedExtras}
+                onBook={openBooking}
+              />
+            )}
+          </AnimatePresence>
+        )}
+
+        <BookingForm 
+          isOpen={showBooking} 
+          onClose={() => setShowBooking(false)}
+          locationTitle={bookingLocation}
+        />
+          </>
+        )}
       </div>
-
-      {isBusinessMode ? (
-        <BusinessDashboard />
-      ) : (
-        <AnimatePresence mode="wait">
-          {state === 'landing' && (
-            <Landing 
-              onStart={() => setState('onboarding')} 
-              onWineScan={() => setState('wine_scanner')}
-              onEmergency={() => setState('emergency_route')}
-              onMapExplore={() => setState('map_explorer')}
-            />
-          )}
-          {state === 'wine_scanner' && (
-            <WineScanner 
-              onBuildTour={handleWineTourBuild}
-              onBack={() => setState('landing')}
-            />
-          )}
-          {state === 'emergency_route' && (
-            <EmergencyRoute
-              onBuildRoute={handleEmergencyRoute}
-              onBack={() => setState('landing')}
-            />
-          )}
-          {state === 'map_explorer' && (
-            <MapExplorer
-              onBuildRoute={handleMapRoute}
-              onBack={() => setState('landing')}
-            />
-          )}
-          {state === 'onboarding' && (
-            <Onboarding onComplete={(liked) => {
-              setLikedInterests(liked);
-              setState('profile');
-            }} />
-          )}
-          {state === 'profile' && (
-            <GroupFighterSelect onComplete={() => setState('loading')} />
-          )}
-          {state === 'loading' && (
-            <LoadingAgents onComplete={() => setState('route_selection')} />
-          )}
-          {state === 'route_selection' && (
-            <ResultsLayout 
-              locations={LOCATIONS}
-              likedInterests={likedInterests}
-              onFinish={handleRouteSelectionComplete} 
-            />
-          )}
-          {state === 'final_route' && (
-            <FinalRoute 
-              locations={acceptedLocations} 
-              selectedExtras={selectedExtras}
-              onBook={openBooking}
-            />
-          )}
-        </AnimatePresence>
-      )}
-
-      <BookingForm 
-        isOpen={showBooking} 
-        onClose={() => setShowBooking(false)}
-        locationTitle={bookingLocation}
-      />
-    </div>
+    </AIServiceProvider>
   );
 }
 

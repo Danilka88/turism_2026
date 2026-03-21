@@ -4,7 +4,7 @@ import { Calendar, Baby, Check, Clock, Palmtree, Sun, CalendarDays, ChevronRight
 import { FIGHTERS } from '../data';
 
 interface GroupFighterSelectProps {
-  onComplete: () => void;
+  onComplete: (companions: string) => void;
 }
 
 type Duration = 'day' | 'weekend' | '3days' | 'week';
@@ -334,7 +334,16 @@ export function GroupFighterSelect({ onComplete }: GroupFighterSelectProps) {
             </button>
           )}
           <button 
-            onClick={() => step < TOTAL_STEPS ? setStep(s => s + 1) : onComplete()}
+            onClick={() => {
+              if (step < TOTAL_STEPS) {
+                setStep(s => s + 1);
+              } else {
+                const companionsText = selectedParticipants
+                  .map(id => FIGHTERS.find(f => f.id === id)?.name || id)
+                  .join(', ');
+                onComplete(companionsText || 'Один');
+              }
+            }}
             className="glass-btn glass-btn-primary flex-1 py-3 sm:py-4 flex items-center justify-center gap-2 text-sm sm:text-base font-bold"
           >
             {step < TOTAL_STEPS ? (

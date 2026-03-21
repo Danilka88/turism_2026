@@ -1,7 +1,7 @@
 import { BaseAgent } from './BaseAgent';
 import type { AgentResponse, DescriptionGeneratorInput, DescriptionGeneratorOutput } from '../types';
 
-const SYSTEM_PROMPT = `Ты - копирайтер-путешественник. Создай привлекательные описания мест. На русском. JSON.`;
+const SYSTEM_PROMPT = `Ты - копирайтер. Отвечай кратко на русском.`;
 
 export class DescriptionGeneratorAgent extends BaseAgent {
   constructor() {
@@ -9,33 +9,35 @@ export class DescriptionGeneratorAgent extends BaseAgent {
       name: 'DescriptionGeneratorAgent',
       type: 'description_generator',
       systemPrompt: SYSTEM_PROMPT,
-      temperature: 0.8,
+      temperature: 0.5,
+      maxTokens: 150,
     });
   }
 
   async process(input: DescriptionGeneratorInput): Promise<AgentResponse<DescriptionGeneratorOutput>> {
     try {
-      const prompt = this.buildPrompt(input);
-      const { data } = await this.callOllamaStructured<DescriptionGeneratorOutput>(prompt, {
-        title: 'string',
-        shortDescription: 'string',
-        extendedDescription: 'string',
-        tags: 'array<string>',
-        matchText: 'string',
-        activityDescriptions: [{ id: 'string', name: 'string', description: 'string' }],
-        foodDescriptions: [{ id: 'string', name: 'string', description: 'string' }],
-      });
+      const title = input.location?.title || 'Место';
+      const tone = input.tone || 'casual';
+      
+      const response = await this.ollama.chat([
+        { role: 'user', content: `Опиши "${title}" кратко, ${tone} стиль, на русском.` }
+      ]);
 
-      return { success: true, data };
+      return {
+        success: true,
+        data: {
+          title: title,
+          shortDescription: response.response?.slice(0, 100) || 'Отличное место',
+          extendedDescription: response.response || 'Замечательное место для посещения',
+          tags: ['путешествия', 'Кубань'],
+          matchText: 'Рекомендуем посетить',
+          activityDescriptions: ['Осмотр достопримечательностей'],
+          foodDescriptions: ['Местная кухня'],
+        },
+      };
     } catch (error) {
       return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
     }
-  }
-
-  private buildPrompt(input: DescriptionGeneratorInput): string {
-    const tone = input.tone || 'casual';
-    const loc = input.location;
-    return `Создай описание места в стиле ${tone}.\nНазвание: ${loc?.title || '?'}\nОписание: ${loc?.description || '?'}\n\nJSON: {"title":"","shortDescription":"","extendedDescription":"","tags":[],"matchText":"","activityDescriptions":[],"foodDescriptions":[]}`;
   }
 }
 
