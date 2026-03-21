@@ -1,0 +1,17 @@
+# python -m pip install -r requirements.txt
+
+fastapi
+uvicorn
+httpx
+beautifulsoup4
+lxml
+sqlalchemy
+aiosqlite
+pydantic
+python-dotenv
+tenacity
+
+undetected-chromedriver
+selenium
+standard-distutils
+selenium-stealth
