@@ -56,8 +56,8 @@ function FullHeatMap({ selectedIds, allLocs }: { selectedIds: number[]; allLocs:
     const sw = bounds.getSouthWest();
     const ne = bounds.getNorthEast();
     
-    const latStep = Math.max(0.015, (ne.lat - sw.lat) / 60);
-    const lngStep = Math.max(0.015, (ne.lng - sw.lng) / 60);
+    const latStep = Math.max(0.02, (ne.lat - sw.lat) / 40);
+    const lngStep = Math.max(0.02, (ne.lng - sw.lng) / 40);
     
     const points: Array<{ lat: number; lng: number; dist: number }> = [];
     
@@ -83,50 +83,38 @@ function FullHeatMap({ selectedIds, allLocs }: { selectedIds: number[]; allLocs:
   return (
     <>
       {gridPoints.map((point, i) => {
-        let color = '#1e3a8a';
-        let opacity = 0.04;
-        let radius = 12;
+        let color = '#94a3b8';
+        let opacity = 0.03;
+        let radius = 6;
         
-        if (point.dist < 1) {
-          color = '#7f1d1d';
-          opacity = 0.65;
-          radius = 20;
-        } else if (point.dist < 5) {
-          color = '#dc2626';
-          opacity = 0.55;
-          radius = 18;
-        } else if (point.dist < 10) {
-          color = '#f97316';
-          opacity = 0.45;
-          radius = 16;
-        } else if (point.dist < 20) {
-          color = '#facc15';
-          opacity = 0.40;
-          radius = 14;
-        } else if (point.dist < 35) {
-          color = '#84cc16';
-          opacity = 0.35;
-          radius = 13;
-        } else if (point.dist < 50) {
-          color = '#22c55e';
-          opacity = 0.30;
-          radius = 12;
-        } else if (point.dist < 70) {
-          color = '#06b6d4';
+        if (point.dist < 3) {
+          color = '#16a34a';
           opacity = 0.25;
-          radius = 11;
-        } else if (point.dist < 100) {
-          color = '#3b82f6';
-          opacity = 0.20;
-          radius = 10;
-        } else if (point.dist < 150) {
-          color = '#6366f1';
-          opacity = 0.15;
-          radius = 9;
-        } else {
-          color = '#1e3a8a';
-          opacity = 0.08;
           radius = 8;
+        } else if (point.dist < 10) {
+          color = '#22c55e';
+          opacity = 0.20;
+          radius = 7;
+        } else if (point.dist < 20) {
+          color = '#84cc16';
+          opacity = 0.15;
+          radius = 7;
+        } else if (point.dist < 40) {
+          color = '#eab308';
+          opacity = 0.12;
+          radius = 6;
+        } else if (point.dist < 70) {
+          color = '#f97316';
+          opacity = 0.10;
+          radius = 6;
+        } else if (point.dist < 120) {
+          color = '#ef4444';
+          opacity = 0.08;
+          radius = 6;
+        } else if (point.dist < 200) {
+          color = '#dc2626';
+          opacity = 0.06;
+          radius = 6;
         }
         
         return (
@@ -158,7 +146,7 @@ function SelectedPointGlow({ selectedIds, allLocs }: { selectedIds: number[]; al
   
   if (selectedIds.length === 0) return null;
   
-  const baseRadius = Math.max(15, 40 - zoom * 1.5);
+  const baseRadius = Math.max(10, 25 - zoom);
   
   return (
     <>
@@ -170,11 +158,11 @@ function SelectedPointGlow({ selectedIds, allLocs }: { selectedIds: number[]; al
           <CircleMarker
             key={`glow-${loc.id}`}
             center={[loc.lat, loc.lng]}
-            radius={baseRadius * 6}
+            radius={baseRadius * 3}
             pathOptions={{
-              color: '#7f1d1d',
-              fillColor: '#dc2626',
-              fillOpacity: 0.25,
+              color: '#2563eb',
+              fillColor: '#3b82f6',
+              fillOpacity: 0.15,
               weight: 0,
             }}
             interactive={false}
@@ -253,8 +241,8 @@ export function MapExplorer({ onBuildRoute, onBack }: MapExplorerProps) {
               radius={isSelected ? 14 : isHovered ? 12 : 10}
               pathOptions={{
                 color: '#ffffff',
-                fillColor: isSelected ? '#16a34a' : getCategoryColor(loc),
-                fillOpacity: isSelected ? 1 : isHovered ? 0.95 : 0.85,
+                fillColor: isSelected ? '#3b82f6' : getCategoryColor(loc),
+                fillOpacity: isSelected ? 1 : isHovered ? 0.9 : 0.8,
                 weight: isSelected || isHovered ? 3 : 2,
               }}
               eventHandlers={{
@@ -283,7 +271,7 @@ export function MapExplorer({ onBuildRoute, onBack }: MapExplorerProps) {
                     className={`w-full py-2 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
                       isSelected
                         ? 'bg-red-100 text-red-600 hover:bg-red-200'
-                        : 'bg-green-500 text-white hover:bg-green-600'
+                        : 'bg-blue-500 text-white hover:bg-blue-600'
                     }`}
                   >
                     {isSelected ? (
@@ -422,33 +410,30 @@ export function MapExplorer({ onBuildRoute, onBack }: MapExplorerProps) {
         )}
       </AnimatePresence>
 
-      {/* Heat Map Legend - Rainbow palette */}
+      {/* Heat Map Legend */}
       {selectedLocations.length > 0 && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="absolute bottom-24 right-4 z-[900] bg-white/95 backdrop-blur-xl rounded-2xl px-4 py-3 shadow-lg border border-gray-200 hidden md:block"
+          className="absolute bottom-24 right-4 z-[900] bg-white/90 backdrop-blur-xl rounded-2xl px-4 py-3 shadow-lg border border-gray-200 hidden md:block"
         >
           <p className="text-gray-600 text-xs font-bold mb-2">Расстояние:</p>
           <div className="space-y-1.5">
             {[
-              { color: '#7f1d1d', label: '< 1 км' },
-              { color: '#dc2626', label: '1-5 км' },
-              { color: '#f97316', label: '5-10 км' },
-              { color: '#facc15', label: '10-20 км' },
-              { color: '#84cc16', label: '20-35 км' },
-              { color: '#22c55e', label: '35-50 км' },
-              { color: '#06b6d4', label: '50-70 км' },
-              { color: '#3b82f6', label: '70-100 км' },
-              { color: '#6366f1', label: '100-150 км' },
-              { color: '#1e3a8a', label: '> 150 км' },
+              { color: '#16a34a', label: '< 3 км' },
+              { color: '#22c55e', label: '3-10 км' },
+              { color: '#84cc16', label: '10-20 км' },
+              { color: '#eab308', label: '20-40 км' },
+              { color: '#f97316', label: '40-70 км' },
+              { color: '#ef4444', label: '70-120 км' },
+              { color: '#dc2626', label: '> 120 км' },
             ].map(item => (
               <div key={item.color} className="flex items-center gap-2">
                 <div
-                  className="w-4 h-4 rounded-full shadow-sm"
-                  style={{ background: item.color }}
+                  className="w-3 h-3 rounded-full"
+                  style={{ background: item.color, opacity: 0.7 }}
                 />
-                <span className="text-gray-700 text-xs font-bold">{item.label}</span>
+                <span className="text-gray-600 text-xs font-bold">{item.label}</span>
               </div>
             ))}
           </div>
