@@ -12,6 +12,7 @@ import {
   BusinessDashboard,
   WineScanner,
   BookingForm,
+  EmergencyRoute,
 } from './components';
 import type { AppState, SelectedExtras, Location } from './types';
 
@@ -33,6 +34,13 @@ function App() {
   const handleWineTourBuild = (locations: Location[]) => {
     setAcceptedLocations(locations);
     setSelectedExtras({});
+    setState('final_route');
+  };
+
+  const handleEmergencyRoute = (locations: Location[], problem: string) => {
+    setAcceptedLocations(locations);
+    setSelectedExtras({});
+    setBookingLocation(problem);
     setState('final_route');
   };
 
@@ -68,11 +76,18 @@ function App() {
             <Landing 
               onStart={() => setState('onboarding')} 
               onWineScan={() => setState('wine_scanner')}
+              onEmergency={() => setState('emergency_route')}
             />
           )}
           {state === 'wine_scanner' && (
             <WineScanner 
               onBuildTour={handleWineTourBuild}
+              onBack={() => setState('landing')}
+            />
+          )}
+          {state === 'emergency_route' && (
+            <EmergencyRoute
+              onBuildRoute={handleEmergencyRoute}
               onBack={() => setState('landing')}
             />
           )}

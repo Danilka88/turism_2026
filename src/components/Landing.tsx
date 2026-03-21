@@ -1,12 +1,13 @@
 import { motion } from 'motion/react';
-import { Compass, Play, Wine } from 'lucide-react';
+import { Compass, Play, Wine, Zap } from 'lucide-react';
 
 interface LandingProps {
   onStart: () => void;
   onWineScan: () => void;
+  onEmergency: () => void;
 }
 
-export function Landing({ onStart, onWineScan }: LandingProps) {
+export function Landing({ onStart, onWineScan, onEmergency }: LandingProps) {
   return (
     <motion.div 
       initial={{ opacity: 0 }} 
@@ -45,8 +46,8 @@ export function Landing({ onStart, onWineScan }: LandingProps) {
           Начать приключение
         </button>
         
-        <div className="w-full border-t border-white/20 pt-4 mt-2">
-          <p className="text-sm text-white/60 mb-3">Или начни с бутылки вина</p>
+        <div className="w-full border-t border-white/20 pt-4 mt-2 space-y-3">
+          <p className="text-sm text-white/60 mb-1">Или начни с бутылки вина</p>
           <motion.button 
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
@@ -55,6 +56,16 @@ export function Landing({ onStart, onWineScan }: LandingProps) {
           >
             <Wine className="w-5 h-5" />
             Сканировать бутылку
+          </motion.button>
+          
+          <motion.button 
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={onEmergency}
+            className="w-full py-3 px-6 bg-gradient-to-r from-amber-500/80 to-orange-500/80 hover:from-amber-600/80 hover:to-orange-600/80 text-white font-bold rounded-xl transition-all flex items-center justify-center gap-2 border border-white/20"
+          >
+            <Zap className="w-5 h-5" />
+            Экстренный маршрут
           </motion.button>
         </div>
       </motion.div>

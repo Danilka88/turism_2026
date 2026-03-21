@@ -9,3 +9,4 @@ export { FinalRoute } from './FinalRoute';
 export { BusinessDashboard } from './BusinessDashboard';
 export { WineScanner } from './WineScanner';
 export { BookingForm } from './BookingForm';
+export { EmergencyRoute } from './EmergencyRoute';
