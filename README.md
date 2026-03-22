@@ -94,6 +94,43 @@ npm run dev
 - **Lucide React** — иконки
 - **Ollama** — локальные ИИ-агенты (qwen3.5:4b)
 
+## Тестирование
+
+Для всех backend-модулей написаны unit-тесты с использованием **pytest**.
+
+### Route Intelligence (25 тестов)
+
+```bash
+cd route-intelligence
+python3 -m venv .venv && source .venv/bin/activate
+pip install pytest pytest-asyncio httpx fastapi pydantic
+python -m pytest test_main.py -v
+```
+
+Покрытие: DistanceCalculator, NearbyFinder, Utils (haversine, bearing), API endpoints, schemas.
+
+### Security Agents (21 тест)
+
+```bash
+cd security-agents
+python3 -m venv .venv && source .venv/bin/activate
+pip install pytest pytest-asyncio httpx fastapi pydantic pydantic-settings
+python -m pytest test_main.py -v
+```
+
+Покрытие: AuditLogger, ThreatDetector, UserBehavior, schemas, API endpoints.
+
+### Product Vision Analytics (53 теста)
+
+```bash
+cd product-vision-analytics
+python3 -m venv .venv && source .venv/bin/activate
+pip install pytest pytest-asyncio httpx pydantic geopy
+python -m pytest test_main.py -v
+```
+
+Покрытие: Producers DB, Tours DB, Degustations DB, Products DB, TourRouteAgent, ProducerFinderAgent, DegustationAgent, BookingAgent, ProductVisionAgent, schemas.
+
 ## Структура проекта
 
 ```
