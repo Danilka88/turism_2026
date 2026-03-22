@@ -7,3 +7,5 @@ osmnx>=1.7.0
 shapely>=2.0.0
 pyrosm>=0.6.0
 httpx>=0.24.0
+pytest>=8.0.0
+pytest-asyncio>=0.23.0
